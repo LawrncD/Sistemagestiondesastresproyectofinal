@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Sistema de Gestión de Desastres</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f6f9; }
+        h1 { color: #004aad; text-align: center; }
+        h2 { color: #333; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        th { background-color: #004aad; color: white; }
+        tr.alto { background-color: #ffb3b3; }   /* Riesgo alto */
+        tr.medio { background-color: #fff5ba; }  /* Riesgo medio */
+        tr.bajo { background-color: #c6f5c6; }   /* Riesgo bajo */
+        footer { text-align: center; margin-top: 40px; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>🌎 Sistema de Gestión de Desastres Naturales</h1>
+    <h2>Zonas Afectadas</h2>
+    <table>
+        <tr><th>Zona</th><th>Población</th><th>Riesgo</th></tr>
+<tr class='medio'><td>Centro de Ayuda C</td><td>800</td><td>60</td></tr><tr class='alto'><td>Ciudad A</td><td>2000</td><td>80</td></tr><tr class='medio'><td>Refugio B</td><td>300</td><td>50</td></tr></table>
+<h2>Recursos por Ubicación</h2>
+<table>
+    <tr><th>Ubicación</th><th>Recursos</th></tr>
+<tr><td>almacen-central</td><td>{ALIMENTO=800, MEDICINA=150}</td></tr><tr><td>Centro de Ayuda C</td><td>{}</td></tr><tr><td>Ciudad A</td><td>{ALIMENTO=200}</td></tr><tr><td>Refugio B</td><td>{MEDICINA=50}</td></tr></table>
+<footer>
+    <p>Proyecto académico - Universidad del Quindío - 2025</p>
+</footer>
+</body>
+</html>
