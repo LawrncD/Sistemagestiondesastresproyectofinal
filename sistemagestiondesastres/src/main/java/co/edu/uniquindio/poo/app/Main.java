@@ -12,10 +12,12 @@ public class Main {
         System.out.println("Login admin@local → " + (loginOk ? "Éxito ✅" : "Error ❌"));
 
         // 🚗 PRUEBA DE RUTA MÁS CORTA
+
         System.out.println("\n=== Prueba de Rutas ===");
         GrafoDirigido grafo = sistema.getGrafo();
 
         // Tomar las dos zonas creadas por defecto en cargarDatosIniciales()
+
         var zonas = grafo.obtenerZonas();
         String origen = null, destino = null;
         for (var z : zonas) {

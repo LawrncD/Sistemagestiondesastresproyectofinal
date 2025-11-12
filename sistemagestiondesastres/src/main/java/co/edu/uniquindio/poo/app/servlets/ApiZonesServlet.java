@@ -20,4 +20,5 @@ public class ApiZonesServlet extends HttpServlet {
         var zonas = sistema.getGrafo().obtenerZonas(); // List<ZonaAfectada>
         resp.getWriter().write(gson.toJson(zonas));
     }
+
 }

@@ -16,7 +16,7 @@ public class MapaRecursos {
         for (var entry : recursos.entrySet()) {
             actual.merge(entry.getKey(), entry.getValue(), Integer::sum);
         }
-    }
+    }  
 
     /** Transfiere recursos entre ubicaciones si hay suficiente stock. */
     public boolean transferirRecursos(String origen, String destino, TipoRecurso tipo, int cantidad) {
