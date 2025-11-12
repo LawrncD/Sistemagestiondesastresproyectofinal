@@ -104,4 +104,61 @@ public ZonaAfectada obtenerZonaPorId(String id) {
     return null;
 }
 
+    /**
+     * Agrega una zona al grafo (alias de agregarNodo para compatibilidad con servlet)
+     * @param zona La zona a agregar
+     * @return true si se agregó exitosamente, false si ya existía
+     */
+    public boolean agregarZona(ZonaAfectada zona) {
+        if (zona == null || zona.getId() == null) {
+            return false;
+        }
+
+        // Verificar si la zona ya existe
+        if (nodos.containsKey(zona.getId())) {
+            return false;
+        }
+
+        // Agregar la zona al grafo
+        nodos.put(zona.getId(), zona);
+
+        // Inicializar lista de aristas para este nodo si no existe
+        aristas.putIfAbsent(zona.getId(), new ArrayList<>());
+
+        return true;
+    }
+
+    /**
+     * Elimina una zona del grafo
+     * @param zonaId El ID de la zona a eliminar
+     * @return true si se eliminó, false si no existía
+     */
+    public boolean eliminarZona(String zonaId) {
+        if (!nodos.containsKey(zonaId)) {
+            return false;
+        }
+
+        // Eliminar el nodo
+        nodos.remove(zonaId);
+
+        // Eliminar sus aristas salientes
+        aristas.remove(zonaId);
+
+        // Eliminar aristas que apunten a este nodo
+        for (List<Ruta> rutas : aristas.values()) {
+            rutas.removeIf(ruta -> ruta.getDestinoId().equals(zonaId));
+        }
+
+        return true;
+    }
+
+    /**
+     * Verifica si existe una zona con el ID dado
+     * @param id El ID a verificar
+     * @return true si existe, false en caso contrario
+     */
+    public boolean existeZona(String id) {
+        return nodos.containsKey(id);
+    }
+
 }
