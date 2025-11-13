@@ -52,7 +52,7 @@ public class ApiZonesServlet extends HttpServlet {
             }
 
             String jsonString = sb.toString();
-            System.out.println("DEBUG: Recibido JSON: " + jsonString);
+            System.out.println("DEBUG ApiZonesServlet - Recibido JSON: " + jsonString);
 
             // Parsear JSON
             JsonObject jsonRequest = gson.fromJson(jsonString, JsonObject.class);
@@ -61,7 +61,7 @@ public class ApiZonesServlet extends HttpServlet {
             int poblacion = jsonRequest.has("poblacion") ? jsonRequest.get("poblacion").getAsInt() : 0;
             int nivelDeRiesgo = jsonRequest.has("nivelDeRiesgo") ? jsonRequest.get("nivelDeRiesgo").getAsInt() : 0;
 
-            System.out.println("DEBUG: Nombre=" + nombre + ", Poblacion=" + poblacion + ", Riesgo=" + nivelDeRiesgo);
+            System.out.println("DEBUG ApiZonesServlet - Nombre=" + nombre + ", Poblacion=" + poblacion + ", Riesgo=" + nivelDeRiesgo);
 
             // Validar datos
             if (nombre == null || nombre.trim().isEmpty()) {
@@ -93,6 +93,7 @@ public class ApiZonesServlet extends HttpServlet {
 
             // Crear la nueva zona
             ZonaAfectada nuevaZona = new ZonaAfectada(nombre, poblacion, nivelDeRiesgo);
+            System.out.println("DEBUG ApiZonesServlet - Zona creada con ID: " + nuevaZona.getId());
 
             // Agregar al grafo
             boolean agregada = sistema.getGrafo().agregarZona(nuevaZona);
@@ -106,7 +107,7 @@ public class ApiZonesServlet extends HttpServlet {
                 return;
             }
 
-            System.out.println("DEBUG: Zona creada exitosamente: " + nuevaZona.getId());
+            System.out.println("DEBUG ApiZonesServlet - Zona agregada exitosamente al grafo");
 
             // Respuesta exitosa
             resp.setStatus(HttpServletResponse.SC_CREATED);
@@ -118,6 +119,7 @@ public class ApiZonesServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("ERROR ApiZonesServlet: " + e.getMessage());
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             JsonObject error = new JsonObject();
             error.addProperty("ok", false);

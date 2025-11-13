@@ -29,36 +29,33 @@ public class ApiEvacuacionesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // Obtener lista de zonas ordenadas por nivel de riesgo
-        List<ZonaAfectada> zonas = sistema.getGrafo().obtenerZonas();
-        zonas.sort((a, b) -> Integer.compare(b.getNivelDeRiesgo(), a.getNivelDeRiesgo()));
-
         resp.setContentType("application/json;charset=UTF-8");
+        var zonas = sistema.getGrafo().obtenerZonas();
+        zonas.sort((a, b) -> Integer.compare(b.getNivelDeRiesgo(), a.getNivelDeRiesgo()));
         resp.getWriter().write(gson.toJson(zonas));
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Map<String, Object> body = gson.fromJson(req.getReader(), Map.class);
-        String zonaId = (String) body.get("zonaId");
-
-        Number nPersonas = (Number) body.get("personas");
-        int personas = nPersonas == null ? 0 : nPersonas.intValue();
-
-        // Buscar la zona afectada en el grafo
-        var zona = sistema.getGrafo().obtenerZonaPorId(zonaId);
-        if (zona == null) {
-            resp.getWriter().write(gson.toJson(Map.of("ok", false, "msg", "Zona no encontrada")));
-            return;
-        }
-
-        // Registrar la zona en la cola de evacuación
-        sistema.getColaEvacuaciones().registrarZonaEvacuacion(zona);
-
-        // Enviar respuesta
         resp.setContentType("application/json;charset=UTF-8");
-        resp.getWriter().write(gson.toJson(Map.of("ok", true, "zona", zona.getNombre())));
+        try {
+            Map<String, Object> body = gson.fromJson(req.getReader(), Map.class);
+            String zonaId = (String) body.get("zonaId");
+            int personas = ((Double) body.get("personas")).intValue();
+
+            var zona = sistema.getGrafo().obtenerZonaPorId(zonaId);
+            if (zona == null)
+                throw new IllegalArgumentException("Zona no encontrada");
+
+            sistema.getColaEvacuaciones().registrarZonaEvacuacion(zona);
+            resp.getWriter().write(gson.toJson(Map.of("ok", true, "msg", "Evacuación registrada", "zona", zona.getNombre())));
+        } catch (Exception e) {
+            resp.getWriter().write(gson.toJson(Map.of("ok", false, "msg", e.getMessage())));
+        } finally {
+            resp.flushBuffer();
+        }
     }
 }
+
 
 
