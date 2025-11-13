@@ -49,5 +49,58 @@ public class ZonaAfectada {
     public int getPoblacion() { return poblacion; }
     public int getNivelDeRiesgo() { return nivelDeRiesgo; }
 
+    public Map<TipoRecurso, Integer> getRecursosAsignados() {
+        return recursosAsignados;
+    }
+
+    // Setters (útiles para actualizaciones)
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setPoblacion(int poblacion) {
+        this.poblacion = poblacion;
+    }
+
+    public void setNivelDeRiesgo(int nivelDeRiesgo) {
+        if (nivelDeRiesgo >= 0 && nivelDeRiesgo <= 100) {
+            this.nivelDeRiesgo = nivelDeRiesgo;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ZonaAfectada{id='%s', nombre='%s', poblacion=%d, nivelDeRiesgo=%d, recursos=%s}",
+                id, nombre, poblacion, nivelDeRiesgo, recursosAsignados);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ZonaAfectada that = (ZonaAfectada) obj;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    /**
+     * Elimina o reduce la cantidad de un recurso
+     * @param tipo Tipo de recurso
+     * @param cantidad Cantidad a reducir
+     * @return true si se pudo reducir, false si no había suficiente
+     */
+    public boolean reducirRecurso(TipoRecurso tipo, int cantidad) {
+        int actual = recursosAsignados.getOrDefault(tipo, 0);
+        if (actual < cantidad) {
+            return false;
+        }
+        recursosAsignados.put(tipo, actual - cantidad);
+        return true;
+    }
+
     
 }
