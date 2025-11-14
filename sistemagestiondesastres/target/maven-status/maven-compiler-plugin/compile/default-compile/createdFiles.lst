@@ -2,6 +2,7 @@ co\edu\uniquindio\poo\app\servlets\LogoutServlet.class
 co\edu\uniquindio\poo\model\TipoRecurso.class
 co\edu\uniquindio\poo\app\servlets\ApiZonesServlet.class
 co\edu\uniquindio\poo\model\TipoEquipo.class
+co\edu\uniquindio\poo\app\servlets\ApiRoutesServlet$RutaEnriquecida.class
 co\edu\uniquindio\poo\model\Ruta.class
 co\edu\uniquindio\poo\model\Admin.class
 co\edu\uniquindio\poo\app\Main.class
