@@ -27,6 +27,11 @@ public class EquipoDeRescate {
         return true;
     }
 
+    public void liberar() {
+        this.disponible = true;
+        this.ubicacionActual = null;
+    }
+
     public boolean estaDisponible() { return disponible; }
 
     public void reportarEstado(String estado) {
@@ -34,5 +39,15 @@ public class EquipoDeRescate {
         System.out.printf("Equipo %s reporta: %s%n", id, estado);
     }
 
+    // Getters
     public String getId() { return id; }
+    public TipoEquipo getTipo() { return tipo; }
+    public int getMiembros() { return miembros; }
+    public String getUbicacionActual() { return ubicacionActual; }
+    public List<String> getEspecialidades() { return especialidades; }
+
+    // Setters
+    public void setMiembros(int miembros) { this.miembros = miembros; }
+    public void setUbicacionActual(String ubicacionActual) { this.ubicacionActual = ubicacionActual; }
+    public void setDisponible(boolean disponible) { this.disponible = disponible; }
 }

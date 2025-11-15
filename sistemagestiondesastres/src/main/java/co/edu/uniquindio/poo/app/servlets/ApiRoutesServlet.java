@@ -27,6 +27,11 @@ public class ApiRoutesServlet extends HttpServlet {
             throws ServletException, IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
+        
+        // CORS headers
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
         try {
             var aristas = sistema.getGrafo().getAristas(); // Map<String, List<Ruta>>
@@ -235,5 +240,94 @@ public class ApiRoutesServlet extends HttpServlet {
             this.capacidad = capacidad;
             this.disponible = disponible;
         }
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+        try {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = req.getReader().readLine()) != null) {
+                sb.append(line);
+            }
+
+            Map<String, Object> body = gson.fromJson(sb.toString(), Map.class);
+            String routeId = (String) body.get("id");
+
+            if (routeId == null || routeId.trim().isEmpty()) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                JsonObject error = new JsonObject();
+                error.addProperty("ok", false);
+                error.addProperty("msg", "El ID de la ruta es requerido");
+                resp.getWriter().write(gson.toJson(error));
+                return;
+            }
+
+            // Buscar la ruta
+            Ruta rutaExistente = null;
+            String origenId = null;
+            for (var entry : sistema.getGrafo().getAristas().entrySet()) {
+                origenId = entry.getKey();
+                for (Ruta r : entry.getValue()) {
+                    String id = r.getOrigenId() + "-" + r.getDestinoId();
+                    if (id.equals(routeId)) {
+                        rutaExistente = r;
+                        break;
+                    }
+                }
+                if (rutaExistente != null) break;
+            }
+
+            if (rutaExistente == null) {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                JsonObject error = new JsonObject();
+                error.addProperty("ok", false);
+                error.addProperty("msg", "Ruta no encontrada");
+                resp.getWriter().write(gson.toJson(error));
+                return;
+            }
+
+            // Como Ruta es inmutable, crear una nueva ruta con los valores actualizados
+            double distancia = body.containsKey("distancia") ? 
+                ((Number) body.get("distancia")).doubleValue() : rutaExistente.getDistancia();
+            double tiempo = body.containsKey("tiempo") ? 
+                ((Number) body.get("tiempo")).doubleValue() : rutaExistente.getTiempo();
+            int capacidad = body.containsKey("capacidad") ? 
+                ((Number) body.get("capacidad")).intValue() : rutaExistente.getCapacidad();
+            
+            // Remover la ruta vieja y agregar la nueva
+            sistema.getGrafo().getAristas().get(origenId).remove(rutaExistente);
+            Ruta nuevaRuta = new Ruta(rutaExistente.getOrigenId(), rutaExistente.getDestinoId(), 
+                distancia, tiempo, capacidad);
+            sistema.getGrafo().getAristas().get(origenId).add(nuevaRuta);
+
+            JsonObject response = new JsonObject();
+            response.addProperty("ok", true);
+            response.addProperty("msg", "Ruta actualizada exitosamente");
+            resp.getWriter().write(gson.toJson(response));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            JsonObject error = new JsonObject();
+            error.addProperty("ok", false);
+            error.addProperty("msg", "Error al actualizar ruta: " + e.getMessage());
+            resp.getWriter().write(gson.toJson(error));
+        }
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 }

@@ -1,20 +1,21 @@
 package co.edu.uniquindio.poo.app;
-import java.io.*;
-import java.nio.file.*;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import co.edu.uniquindio.poo.ds.ArbolDistribucion;
 import co.edu.uniquindio.poo.ds.ColaPrioridadEvacuaciones;
 import co.edu.uniquindio.poo.ds.GrafoDirigido;
 import co.edu.uniquindio.poo.ds.MapaRecursos;
 import co.edu.uniquindio.poo.model.Admin;
+import co.edu.uniquindio.poo.model.EquipoDeRescate;
 import co.edu.uniquindio.poo.model.OperadorDeEmergencia;
 import co.edu.uniquindio.poo.model.Reporte;
 import co.edu.uniquindio.poo.model.Ruta;
+import co.edu.uniquindio.poo.model.TipoEquipo;
 import co.edu.uniquindio.poo.model.TipoRecurso;
 import co.edu.uniquindio.poo.model.Usuario;
 import co.edu.uniquindio.poo.model.ZonaAfectada;
@@ -28,9 +29,14 @@ public class SistemaGestionDesastres {
     private ArbolDistribucion arbolDistribucion = new ArbolDistribucion();
     private List<Reporte> reportes = new ArrayList<>();
     private ColaPrioridadEvacuaciones colaEvacuaciones = new ColaPrioridadEvacuaciones();
+    private Map<String, EquipoDeRescate> equiposDisponibles = new HashMap<>();
 
     public ColaPrioridadEvacuaciones getColaEvacuaciones() {
       return colaEvacuaciones;
+    }
+
+    public ArbolDistribucion getArbolDistribucion() {
+      return arbolDistribucion;
     }
 
     private SistemaGestionDesastres() {
@@ -43,8 +49,9 @@ public class SistemaGestionDesastres {
     }
 
     public boolean login(String email, String password) {
-        // En este ejemplo usamos id como "email"
-        Usuario u = usuarios.get(email);
+        // Convertir email a formato de ID (mismo formato que RegisterServlet)
+        String userId = email.toLowerCase().replace("@", "_").replace(".", "_");
+        Usuario u = usuarios.get(userId);
         if (u == null) return false;
         return u.verificarPassword(password);
     }
@@ -60,21 +67,34 @@ public class SistemaGestionDesastres {
     }
 
     public void cargarDatosIniciales() {
-        // Usuarios
-    Admin admin = new Admin("admin@local", "Administrador", "admin123", "3001112222");
+        // Usuarios (IDs convertidos al formato usado en login: email con @ y . reemplazados por _)
+    Admin admin = new Admin("admin_local", "Administrador", "admin123", "3001112222");
     registrarUsuario(admin);
 
-    OperadorDeEmergencia op = new OperadorDeEmergencia("oper1@local", "Operador 1", "op123", "3003334444");
+    OperadorDeEmergencia op = new OperadorDeEmergencia("oper1_local", "Operador 1", "op123", "3003334444");
     registrarUsuario(op);
 
-    // === ZONAS ===
-    ZonaAfectada z1 = new ZonaAfectada("Ciudad A", 2000, 80);
-    ZonaAfectada z2 = new ZonaAfectada("Refugio B", 300, 50);
-    ZonaAfectada z3 = new ZonaAfectada("Centro de Ayuda C", 800, 60);
+    // === ZONAS CON COORDENADAS REALES DE COLOMBIA ===
+    // Bogotá (alta población, riesgo moderado)
+    ZonaAfectada z1 = new ZonaAfectada("Bogotá Centro", 2000, 80, 4.7110, -74.0721);
+    
+    // Medellín (refugio)
+    ZonaAfectada z2 = new ZonaAfectada("Refugio Medellín", 300, 50, 6.2442, -75.5812);
+    
+    // Cali (centro de ayuda)
+    ZonaAfectada z3 = new ZonaAfectada("Centro Ayuda Cali", 800, 60, 3.4516, -76.5320);
+    
+    // Centro Armenia (zona de riesgo medio)
+    ZonaAfectada z4 = new ZonaAfectada("Centro Armenia", 1200, 70, 4.5339, -75.6811);
+    
+    // La Tebaida (zona de apoyo)
+    ZonaAfectada z5 = new ZonaAfectada("La Tebaida", 600, 55, 4.4563, -75.7847);
 
     grafo.agregarNodo(z1);
     grafo.agregarNodo(z2);
     grafo.agregarNodo(z3);
+    grafo.agregarNodo(z4);
+    grafo.agregarNodo(z5);
 
     // === RUTAS ===
     // A → B directa
@@ -88,16 +108,47 @@ public class SistemaGestionDesastres {
     // C → B
     Ruta r3 = new Ruta(z3.getId(), z2.getId(), 5.0, 10.0, 100);
     grafo.agregarArista(r3);
+    
+    // Centro Armenia → La Tebaida
+    Ruta r4 = new Ruta(z4.getId(), z5.getId(), 2.5, 5.0, 80);
+    grafo.agregarArista(r4);
+    
+    // Cali → Centro Armenia
+    Ruta r5 = new Ruta(z3.getId(), z4.getId(), 8.0, 20.0, 90);
+    grafo.agregarArista(r5);
+    
     // Inicializar las ubicaciones en el mapa de recursos
-    mapaRecursos.agregarRecursosUbicacion("Ciudad A", new HashMap<>());
-    mapaRecursos.agregarRecursosUbicacion("Refugio B", new HashMap<>());
-    mapaRecursos.agregarRecursosUbicacion("Centro de Ayuda C", new HashMap<>());
+    mapaRecursos.agregarRecursosUbicacion("Bogotá Centro", new HashMap<>());
+    mapaRecursos.agregarRecursosUbicacion("Refugio Medellín", new HashMap<>());
+    mapaRecursos.agregarRecursosUbicacion("Centro Ayuda Cali", new HashMap<>());
+    mapaRecursos.agregarRecursosUbicacion("Centro Armenia", new HashMap<>());
+    mapaRecursos.agregarRecursosUbicacion("La Tebaida", new HashMap<>());
 
     // Recursos iniciales
     Map<TipoRecurso, Integer> recs = new HashMap<>();
     recs.put(TipoRecurso.ALIMENTO, 1000);
     recs.put(TipoRecurso.MEDICINA, 200);
     mapaRecursos.agregarRecursosUbicacion("almacen-central", recs);
+    
+    // Centro de distribución regional Armenia
+    Map<TipoRecurso, Integer> recsArmenia = new HashMap<>();
+    recsArmenia.put(TipoRecurso.ALIMENTO, 500);
+    recsArmenia.put(TipoRecurso.AGUA, 800);
+    recsArmenia.put(TipoRecurso.MEDICINA, 150);
+    mapaRecursos.agregarRecursosUbicacion("centro-armenia", recsArmenia);
+
+    // === EQUIPOS DE RESCATE INICIALES ===
+    EquipoDeRescate equipo1 = new EquipoDeRescate(TipoEquipo.MEDICO, 8, null, List.of("Trauma", "Emergencias"));
+    EquipoDeRescate equipo2 = new EquipoDeRescate(TipoEquipo.BOMBERO, 12, null, List.of("Rescate", "Incendios"));
+    EquipoDeRescate equipo3 = new EquipoDeRescate(TipoEquipo.POLICIA, 10, null, List.of("Seguridad", "Evacuación"));
+    EquipoDeRescate equipo4 = new EquipoDeRescate(TipoEquipo.VOLUNTARIO, 15, null, List.of("Logística", "Distribución"));
+    EquipoDeRescate equipo5 = new EquipoDeRescate(TipoEquipo.MEDICO, 5, null, List.of("Pediatría", "Primeros Auxilios"));
+    
+    equiposDisponibles.put(equipo1.getId(), equipo1);
+    equiposDisponibles.put(equipo2.getId(), equipo2);
+    equiposDisponibles.put(equipo3.getId(), equipo3);
+    equiposDisponibles.put(equipo4.getId(), equipo4);
+    equiposDisponibles.put(equipo5.getId(), equipo5);
 }
 
 
@@ -121,9 +172,43 @@ public class SistemaGestionDesastres {
     public GrafoDirigido getGrafo() { return grafo; }
     public MapaRecursos getMapaRecursos() { return mapaRecursos; }
     public Map<String, Usuario> getUsuarios() { return usuarios; }
+    public Map<String, EquipoDeRescate> getEquiposDisponibles() { return equiposDisponibles; }
+    
     public Usuario buscarUsuarioPorCorreo(String correo) {
-    return usuarios.get(correo);
-}
+        return usuarios.get(correo);
+    }
+
+    // Métodos para gestionar equipos
+    public boolean asignarEquipoAZona(String equipoId, String zonaId) {
+        EquipoDeRescate equipo = equiposDisponibles.get(equipoId);
+        if (equipo == null || !equipo.estaDisponible()) {
+            return false;
+        }
+        
+        ZonaAfectada zona = grafo.obtenerZonaPorId(zonaId);
+        if (zona == null) {
+            return false;
+        }
+        
+        equipo.asignarAZona(zonaId);
+        zona.agregarEquipo(equipo);
+        return true;
+    }
+
+    public boolean liberarEquipo(String equipoId, String zonaId) {
+        EquipoDeRescate equipo = equiposDisponibles.get(equipoId);
+        if (equipo == null) {
+            return false;
+        }
+        
+        ZonaAfectada zona = grafo.obtenerZonaPorId(zonaId);
+        if (zona != null) {
+            zona.removerEquipo(equipoId);
+        }
+        
+        equipo.liberar();
+        return true;
+    }
 public void generarDashboardHTML() {
     StringBuilder html = new StringBuilder();
     html.append("""

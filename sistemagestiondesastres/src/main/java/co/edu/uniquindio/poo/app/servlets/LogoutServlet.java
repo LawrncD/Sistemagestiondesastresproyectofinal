@@ -13,6 +13,10 @@ public class LogoutServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession s = req.getSession(false);
         if (s != null) s.invalidate();
-        resp.sendRedirect("login.html");
+        
+        // Enviar respuesta exitosa para que el frontend maneje el redirect
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.setContentType("application/json");
+        resp.getWriter().write("{\"success\": true}");
     }
 }

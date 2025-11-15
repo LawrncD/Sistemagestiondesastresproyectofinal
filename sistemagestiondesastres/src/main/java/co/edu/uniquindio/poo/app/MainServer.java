@@ -24,17 +24,33 @@ public class MainServer {
         staticHolder.setInitParameter("dirAllowed", "true");
         ctx.addServlet(staticHolder, "/");
 
-        // Servlets
+        // Servlets de API
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.LoginServlet.class, "/login");
+        ctx.addServlet(co.edu.uniquindio.poo.app.servlets.RegisterServlet.class, "/register");
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.LogoutServlet.class, "/logout");
+        ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiSessionServlet.class, "/api/session");
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiZonesServlet.class, "/api/zones");
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiRoutesServlet.class, "/api/routes");
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiResourcesServlet.class, "/api/resources");
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiEvacuacionesServlet.class, "/api/evacuations");
+        ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiOptimalRouteServlet.class, "/api/optimal-route");
+        ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiUsuariosServlet.class, "/api/users");
+        ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiEquiposServlet.class, "/api/equipos");
 
         server.setHandler(ctx);
         server.start();
-        System.out.println("Server started at http://localhost:" + port + " (open login.html)");
+        System.out.println("\n");
+        System.out.println("╔════════════════════════════════════════════════════════════╗");
+        System.out.println("║                                                            ║");
+        System.out.println("║     🌍 SISTEMA DE GESTIÓN DE DESASTRES - INICIADO 🌍     ║");
+        System.out.println("║                                                            ║");
+        System.out.println("╚════════════════════════════════════════════════════════════╝");
+        System.out.println("\n✅ Servidor activo en: http://localhost:" + port);
+        System.out.println("📱 Abrir aplicación: http://localhost:" + port + "\n");
+        System.out.println("🔐 CREDENCIALES DE PRUEBA:");
+        System.out.println("   Admin:    admin@local / admin123");
+        System.out.println("   Operador: oper1@local / op123");
+        System.out.println("\n════════════════════════════════════════════════════════════\n");
         server.join();
     }
 }

@@ -24,6 +24,11 @@ public class ApiResourcesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         resp.setContentType("application/json;charset=UTF-8");
+        
+        // CORS headers
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
         try {
             Map<String, Map<TipoRecurso, Integer>> recursos =

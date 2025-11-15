@@ -1,8 +1,5 @@
 package co.edu.uniquindio.poo.model;
 
-import java.util.List;
-import java.util.Map;
-
 import co.edu.uniquindio.poo.app.SistemaGestionDesastres;
 
 public class Admin extends Usuario {
