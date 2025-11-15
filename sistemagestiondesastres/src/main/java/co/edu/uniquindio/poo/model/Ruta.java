@@ -6,10 +6,10 @@ public class Ruta {
     private String id;
     private String origenId;
     private String destinoId;
-    private double tiempo; // en minutos
-    private double distancia; // en km
+    private double tiempo; 
+    private double distancia; 
     private boolean disponible;
-    private int capacidad; // capacidad de transporte (personas o carga)
+    private int capacidad; 
 
     public Ruta(String origenId, String destinoId, double distancia, double tiempo, int capacidad) {
         this.id = UUID.randomUUID().toString();

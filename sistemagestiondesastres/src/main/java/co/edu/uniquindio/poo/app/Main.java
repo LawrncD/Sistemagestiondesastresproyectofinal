@@ -11,7 +11,7 @@ public class Main {
         boolean loginOk = sistema.login("admin@local", "admin123");
         System.out.println("Login admin@local → " + (loginOk ? "Éxito ✅" : "Error ❌"));
 
-        // 🚗 PRUEBA DE RUTA MÁS CORTA
+        // PRUEBA DE RUTA MÁS CORTA
 
         System.out.println("\n=== Prueba de Rutas ===");
         GrafoDirigido grafo = sistema.getGrafo();

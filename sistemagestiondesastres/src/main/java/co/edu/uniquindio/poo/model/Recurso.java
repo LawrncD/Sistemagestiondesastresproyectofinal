@@ -32,4 +32,3 @@ public class Recurso {
     public TipoRecurso getTipo() { return tipo; }
     public String getUbicacion() { return ubicacion; }
 }
-///getter and setters//
