@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 
 import co.edu.uniquindio.poo.app.SistemaGestionDesastres;
 import co.edu.uniquindio.poo.model.EquipoDeRescate;
+import co.edu.uniquindio.poo.model.Notificacion.TipoNotificacion;
 import co.edu.uniquindio.poo.model.ZonaAfectada;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -216,6 +217,15 @@ public class ApiZonesServlet extends HttpServlet {
             ZonaAfectada zonaEnGrafo = sistema.getGrafo().obtenerZonaPorId(nuevaZona.getId());
             if (zonaEnGrafo != null) {
                 System.out.println("DEBUG ApiZonesServlet - Nivel de riesgo de zona EN GRAFO: " + zonaEnGrafo.getNivelDeRiesgo());
+                
+                // 🔔 NOTIFICACIÓN: Riesgo crítico si >= 80
+                if (zonaEnGrafo.getNivelDeRiesgo() >= 80) {
+                    sistema.agregarNotificacion(
+                        TipoNotificacion.RIESGO_CRITICO,
+                        "⚠️ Nivel de riesgo crítico alcanzado en " + zonaEnGrafo.getNombre() + " (" + zonaEnGrafo.getNivelDeRiesgo() + "%)",
+                        zonaEnGrafo.getId()
+                    );
+                }
             }
 
             // Respuesta exitosa

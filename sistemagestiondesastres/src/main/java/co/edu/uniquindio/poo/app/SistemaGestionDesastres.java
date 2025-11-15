@@ -12,6 +12,8 @@ import co.edu.uniquindio.poo.ds.GrafoDirigido;
 import co.edu.uniquindio.poo.ds.MapaRecursos;
 import co.edu.uniquindio.poo.model.Admin;
 import co.edu.uniquindio.poo.model.EquipoDeRescate;
+import co.edu.uniquindio.poo.model.Notificacion;
+import co.edu.uniquindio.poo.model.Notificacion.TipoNotificacion;
 import co.edu.uniquindio.poo.model.OperadorDeEmergencia;
 import co.edu.uniquindio.poo.model.Reporte;
 import co.edu.uniquindio.poo.model.Ruta;
@@ -30,6 +32,7 @@ public class SistemaGestionDesastres {
     private List<Reporte> reportes = new ArrayList<>();
     private ColaPrioridadEvacuaciones colaEvacuaciones = new ColaPrioridadEvacuaciones();
     private Map<String, EquipoDeRescate> equiposDisponibles = new HashMap<>();
+    private List<Notificacion> notificaciones = new ArrayList<>();
 
     public ColaPrioridadEvacuaciones getColaEvacuaciones() {
       return colaEvacuaciones;
@@ -391,4 +394,69 @@ public void generarInterfazCompletaHTML() {
         e.printStackTrace();
     }
 }
+
+    // ==================== MÉTODOS PARA NOTIFICACIONES ====================
+
+    /**
+     * Agregar una nueva notificación al sistema
+     */
+    public void agregarNotificacion(TipoNotificacion tipo, String mensaje) {
+        Notificacion notif = new Notificacion(tipo, mensaje);
+        notificaciones.add(0, notif); // Agregar al inicio para mostrar las más recientes primero
+        System.out.println("🔔 Nueva notificación: " + mensaje);
+    }
+
+    /**
+     * Agregar notificación con zona relacionada
+     */
+    public void agregarNotificacion(TipoNotificacion tipo, String mensaje, String zonaId) {
+        Notificacion notif = new Notificacion(tipo, mensaje, zonaId);
+        notificaciones.add(0, notif);
+        System.out.println("🔔 Nueva notificación [" + zonaId + "]: " + mensaje);
+    }
+
+    /**
+     * Obtener todas las notificaciones (las más recientes primero)
+     */
+    public List<Notificacion> obtenerNotificaciones() {
+        return new ArrayList<>(notificaciones);
+    }
+
+    /**
+     * Contar notificaciones no leídas
+     */
+    public int contarNotificacionesNoLeidas() {
+        return (int) notificaciones.stream().filter(n -> !n.isLeida()).count();
+    }
+
+    /**
+     * Marcar una notificación como leída
+     */
+    public boolean marcarNotificacionComoLeida(int notifId) {
+        for (Notificacion n : notificaciones) {
+            if (n.getId() == notifId) {
+                n.marcarComoLeida();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Marcar todas las notificaciones como leídas
+     */
+    public void marcarTodasNotificacionesComoLeidas() {
+        for (Notificacion n : notificaciones) {
+            n.marcarComoLeida();
+        }
+    }
+
+    /**
+     * Limpiar notificaciones antiguas (opcional, para mantener la lista manejable)
+     */
+    public void limpiarNotificacionesAntiguas(int maxNotificaciones) {
+        if (notificaciones.size() > maxNotificaciones) {
+            notificaciones = new ArrayList<>(notificaciones.subList(0, maxNotificaciones));
+        }
+    }
 }

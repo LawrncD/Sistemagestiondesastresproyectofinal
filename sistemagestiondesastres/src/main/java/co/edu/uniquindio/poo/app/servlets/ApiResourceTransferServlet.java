@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import co.edu.uniquindio.poo.app.SistemaGestionDesastres;
+import co.edu.uniquindio.poo.model.Notificacion.TipoNotificacion;
 import co.edu.uniquindio.poo.model.TipoRecurso;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -102,6 +103,23 @@ public class ApiResourceTransferServlet extends HttpServlet {
             boolean ok = sistema.getMapaRecursos().transferirRecursos(
                     origen, destino, tipoRecurso, cantidad
             );
+
+            // 🔔 NOTIFICACIÓN: Verificar recursos bajos en destino
+            if (ok) {
+                var recursosDestino = sistema.getMapaRecursos().getRecursosUbicacion(destino);
+                if (recursosDestino != null) {
+                    int cantidadActual = recursosDestino.getOrDefault(tipoRecurso, 0);
+                    
+                    // Umbral de recursos bajos: menos de 200 unidades
+                    if (cantidadActual < 200) {
+                        sistema.agregarNotificacion(
+                            TipoNotificacion.RECURSOS_BAJOS,
+                            "⚠️ Recursos bajos en " + destino + ": " + tipoRecurso + " = " + cantidadActual + " unidades",
+                            destino
+                        );
+                    }
+                }
+            }
 
             JsonObject response = new JsonObject();
             response.addProperty("ok", ok);

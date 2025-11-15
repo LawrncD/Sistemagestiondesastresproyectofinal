@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import co.edu.uniquindio.poo.app.SistemaGestionDesastres;
+import co.edu.uniquindio.poo.model.Notificacion.TipoNotificacion;
 import co.edu.uniquindio.poo.model.ZonaAfectada;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -181,8 +182,22 @@ public class ApiEvacuacionesServlet extends HttpServlet {
                         System.out.println("✅ Evacuadas " + evacuacion.personas + " personas de " + zonaEvacuada.getNombre());
                         System.out.println("   Población restante: " + zonaEvacuada.getPoblacion());
                         
+                        // 🔔 NOTIFICACIÓN: Evacuación completada
+                        sistema.agregarNotificacion(
+                            TipoNotificacion.EVACUACION_COMPLETADA,
+                            "Se evacuaron " + evacuacion.personas + " personas de " + zonaEvacuada.getNombre(),
+                            zonaEvacuada.getId()
+                        );
+                        
                         if (zonaEvacuada.isEvacuada()) {
                             System.out.println("🎯 ZONA COMPLETAMENTE EVACUADA: " + zonaEvacuada.getNombre());
+                            
+                            // 🔔 NOTIFICACIÓN: Zona completamente evacuada
+                            sistema.agregarNotificacion(
+                                TipoNotificacion.ZONA_EVACUADA,
+                                "La zona " + zonaEvacuada.getNombre() + " ha sido completamente evacuada",
+                                zonaEvacuada.getId()
+                            );
                         }
                     }
                 }

@@ -3418,3 +3418,192 @@ async function saveAssignTeam(event) {
 window.openAssignTeamModal = openAssignTeamModal;
 window.updateTeamInfo = updateTeamInfo;
 window.saveAssignTeam = saveAssignTeam;
+
+// =====================================================
+// SISTEMA DE NOTIFICACIONES
+// =====================================================
+
+let notificationsData = [];
+let notificationsInterval = null;
+
+/**
+ * Inicializar sistema de notificaciones
+ */
+function initNotifications() {
+    console.log('🔔 Inicializando sistema de notificaciones...');
+    
+    // Cargar notificaciones iniciales
+    loadNotifications();
+    
+    // Polling cada 10 segundos
+    notificationsInterval = setInterval(() => {
+        loadNotifications();
+    }, 10000);
+    
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('notificationsDropdown');
+        const bell = document.getElementById('notificationsBell');
+        
+        if (dropdown && bell && !dropdown.contains(e.target) && !bell.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+}
+
+/**
+ * Cargar notificaciones desde el servidor
+ */
+async function loadNotifications() {
+    try {
+        const response = await fetch('/api/notificaciones');
+        
+        if (!response.ok) {
+            console.error('Error al cargar notificaciones:', response.status);
+            return;
+        }
+        
+        const data = await response.json();
+        notificationsData = data.notificaciones || [];
+        
+        // Actualizar badge con notificaciones no leídas
+        updateNotificationsBadge(data.noLeidas || 0);
+        
+        // Renderizar lista de notificaciones
+        renderNotifications();
+        
+    } catch (error) {
+        console.error('Error cargando notificaciones:', error);
+    }
+}
+
+/**
+ * Actualizar badge de notificaciones no leídas
+ */
+function updateNotificationsBadge(count) {
+    const badge = document.getElementById('notificationsBadge');
+    const bell = document.getElementById('notificationsBell');
+    
+    if (!badge || !bell) return;
+    
+    if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = 'flex';
+        bell.classList.add('has-unread');
+    } else {
+        badge.style.display = 'none';
+        bell.classList.remove('has-unread');
+    }
+}
+
+/**
+ * Renderizar lista de notificaciones
+ */
+function renderNotifications() {
+    const listContainer = document.getElementById('notificationsList');
+    
+    if (!listContainer) return;
+    
+    if (notificationsData.length === 0) {
+        listContainer.innerHTML = `
+            <div class="no-notifications">
+                <i class="fas fa-bell-slash"></i>
+                <p>No hay notificaciones</p>
+            </div>
+        `;
+        return;
+    }
+    
+    listContainer.innerHTML = notificationsData.map(notif => `
+        <div class="notification-item ${notif.leida ? '' : 'unread'}" 
+             onclick="markNotificationAsRead(${notif.id})">
+            <div class="notification-icon ${notif.tipoClase}">
+                ${notif.tipoIcono}
+            </div>
+            <div class="notification-content">
+                <div class="notification-message">${notif.mensaje}</div>
+                <div class="notification-time">${notif.timestamp}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Toggle dropdown de notificaciones
+ */
+function toggleNotifications() {
+    const dropdown = document.getElementById('notificationsDropdown');
+    
+    if (!dropdown) return;
+    
+    dropdown.classList.toggle('show');
+}
+
+/**
+ * Marcar notificación como leída
+ */
+async function markNotificationAsRead(notifId) {
+    try {
+        const response = await fetch('/api/notificaciones', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: notifId })
+        });
+        
+        if (!response.ok) {
+            console.error('Error al marcar notificación:', response.status);
+            return;
+        }
+        
+        const data = await response.json();
+        
+        // Actualizar badge
+        updateNotificationsBadge(data.noLeidas || 0);
+        
+        // Recargar notificaciones
+        await loadNotifications();
+        
+    } catch (error) {
+        console.error('Error marcando notificación:', error);
+    }
+}
+
+/**
+ * Marcar todas las notificaciones como leídas
+ */
+async function markAllNotificationsAsRead() {
+    try {
+        const response = await fetch('/api/notificaciones', {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+            console.error('Error al marcar todas:', response.status);
+            return;
+        }
+        
+        // Actualizar badge
+        updateNotificationsBadge(0);
+        
+        // Recargar notificaciones
+        await loadNotifications();
+        
+        showToast('success', 'Notificaciones', 'Todas las notificaciones marcadas como leídas');
+        
+    } catch (error) {
+        console.error('Error marcando todas las notificaciones:', error);
+        showToast('error', 'Error', 'No se pudieron marcar las notificaciones');
+    }
+}
+
+// Hacer funciones globales
+window.toggleNotifications = toggleNotifications;
+window.markNotificationAsRead = markNotificationAsRead;
+window.markAllNotificationsAsRead = markAllNotificationsAsRead;
+
+// Inicializar notificaciones cuando cargue la página
+document.addEventListener('DOMContentLoaded', () => {
+    initNotifications();
+});

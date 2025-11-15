@@ -18,12 +18,15 @@ co\edu\uniquindio\poo\App.class
 co\edu\uniquindio\poo\app\servlets\ApiResourceTransferServlet.class
 co\edu\uniquindio\poo\app\servlets\ApiEvacuacionesServlet.class
 co\edu\uniquindio\poo\ds\GrafoDirigido.class
+co\edu\uniquindio\poo\app\servlets\ApiNotificacionesServlet.class
 co\edu\uniquindio\poo\app\servlets\LogoutServlet.class
 co\edu\uniquindio\poo\app\servlets\ApiOptimalRouteServlet.class
 co\edu\uniquindio\poo\model\TipoRecurso.class
+co\edu\uniquindio\poo\model\Notificacion.class
 co\edu\uniquindio\poo\model\Ruta.class
 co\edu\uniquindio\poo\app\Main.class
 co\edu\uniquindio\poo\app\servlets\RegisterServlet.class
+co\edu\uniquindio\poo\model\Notificacion$TipoNotificacion.class
 co\edu\uniquindio\poo\model\OperadorDeEmergencia.class
 co\edu\uniquindio\poo\ds\ArbolDistribucion.class
 co\edu\uniquindio\poo\app\servlets\ApiSessionServlet.class

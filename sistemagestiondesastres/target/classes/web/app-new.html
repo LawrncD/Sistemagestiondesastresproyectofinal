@@ -109,6 +109,214 @@
             gap: 1rem;
         }
 
+        /* ===== NOTIFICACIONES ===== */
+        .notifications-container {
+            position: relative;
+        }
+
+        .notifications-bell {
+            position: relative;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .notifications-bell:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .notifications-bell i {
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .notifications-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            min-width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 2px solid var(--primary);
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .notifications-bell.has-unread {
+            animation: shake-bell 0.5s ease;
+        }
+
+        @keyframes shake-bell {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
+        }
+
+        .notifications-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 400px;
+            max-height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 2000;
+        }
+
+        .notifications-dropdown.show {
+            display: flex;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notifications-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 2px solid var(--border);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .mark-all-read {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mark-all-read:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .notifications-list {
+            overflow-y: auto;
+            max-height: 400px;
+            flex: 1;
+        }
+
+        .notification-item {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            gap: 0.75rem;
+            background: white;
+        }
+
+        .notification-item:hover {
+            background: var(--bg-light);
+        }
+
+        .notification-item.unread {
+            background: #eff6ff;
+            border-left: 4px solid var(--info);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.success {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .notification-icon.info {
+            background: #dbeafe;
+            color: var(--info);
+        }
+
+        .notification-icon.warning {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .notification-icon.danger {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-message {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .no-notifications {
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .no-notifications i {
+            font-size: 3rem;
+            color: var(--border);
+            margin-bottom: 1rem;
+        }
+
         .user-info {
             display: flex;
             align-items: center;
@@ -920,6 +1128,30 @@
                 <button class="btn-export" onclick="exportToPDF()" title="Exportar estadísticas a PDF">
                     <i class="fas fa-file-pdf"></i> Exportar PDF
                 </button>
+                
+                <!-- Campana de notificaciones -->
+                <div class="notifications-container">
+                    <div class="notifications-bell" id="notificationsBell" onclick="toggleNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notifications-badge" id="notificationsBadge" style="display: none;">0</span>
+                    </div>
+                    
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="notifications-header">
+                            <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+                            <button class="mark-all-read" onclick="markAllNotificationsAsRead()">
+                                Marcar todas como leídas
+                            </button>
+                        </div>
+                        <div class="notifications-list" id="notificationsList">
+                            <div class="no-notifications">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No hay notificaciones</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">U</div>
                     <div style="display: flex; flex-direction: column; gap: 0.25rem;">

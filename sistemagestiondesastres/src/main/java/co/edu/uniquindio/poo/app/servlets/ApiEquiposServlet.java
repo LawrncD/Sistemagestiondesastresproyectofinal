@@ -9,6 +9,8 @@ import com.google.gson.JsonObject;
 
 import co.edu.uniquindio.poo.app.SistemaGestionDesastres;
 import co.edu.uniquindio.poo.model.EquipoDeRescate;
+import co.edu.uniquindio.poo.model.Notificacion.TipoNotificacion;
+import co.edu.uniquindio.poo.model.ZonaAfectada;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -81,6 +83,17 @@ public class ApiEquiposServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_OK);
                 resp.getWriter().write("{\"success\":true,\"message\":\"Equipo asignado correctamente\"}");
                 System.out.println("DEBUG ApiEquiposServlet POST - Equipo asignado exitosamente");
+                
+                // 🔔 NOTIFICACIÓN: Equipo asignado
+                EquipoDeRescate equipo = sistema.getEquiposDisponibles().get(equipoId);
+                ZonaAfectada zona = sistema.getGrafo().obtenerZonaPorId(zonaId);
+                if (equipo != null && zona != null) {
+                    sistema.agregarNotificacion(
+                        TipoNotificacion.EQUIPO_ASIGNADO,
+                        "Equipo " + equipo.getTipo() + " (" + equipoId + ") asignado a " + zona.getNombre(),
+                        zonaId
+                    );
+                }
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write("{\"success\":false,\"message\":\"No se pudo asignar el equipo\"}");
