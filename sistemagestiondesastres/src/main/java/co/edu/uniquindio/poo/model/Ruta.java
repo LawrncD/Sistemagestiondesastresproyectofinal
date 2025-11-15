@@ -33,8 +33,8 @@ public class Ruta {
     public String getId() { return id; }
     public String getOrigenId() { return origenId; }
     public String getDestinoId() { return destinoId; }
-    public double getDistancia() { return distancia; }   // 👈 NUEVO
-    public double getTiempo() { return tiempo; }      // 👈 NUEVO
+    public double getDistancia() { return distancia; }   
+    public double getTiempo() { return tiempo; }      
     public int getCapacidad() {
     return capacidad;
 }

@@ -31,7 +31,7 @@ public class Main {
             System.out.println("❌ No se encontraron las zonas esperadas.");
         }
 
-        // 📊 Reporte final
+        //  Reporte final
         System.out.println("\n" + sistema.generarReporteEstadisticas().generarContenido());
         // === GESTIÓN DE RECURSOS ===
         System.out.println("\n=== Gestión de Recursos ===");
