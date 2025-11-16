@@ -18,14 +18,6 @@ import java.util.List;
  * 
  * Proporciona endpoints para consultar, marcar como leídas y gestionar
  * las notificaciones generadas por eventos del sistema de desastres.
- * 
- * <p>Endpoints disponibles:</p>
- * <ul>
- *   <li>GET /api/notificaciones - Obtiene todas las notificaciones con estadísticas</li>
- *   <li>PUT /api/notificaciones - Marca una notificación específica como leída</li>
- *   <li>DELETE /api/notificaciones - Marca todas las notificaciones como leídas</li>
- * </ul>
- * 
  * @author Sistema de Gestión de Desastres - Universidad del Quindío
  * @version 1.0
  * @since 2025

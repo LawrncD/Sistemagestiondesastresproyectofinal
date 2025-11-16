@@ -16,7 +16,6 @@ import java.util.Map;
 
 /**
  * Servlet para registro de nuevos usuarios en el sistema
- * Soporta registro de Admin y OperadorDeEmergencia
  */
 public class RegisterServlet extends HttpServlet {
     private final Gson gson = new Gson();
@@ -32,7 +31,6 @@ public class RegisterServlet extends HttpServlet {
         res.setHeader("Access-Control-Allow-Headers", "Content-Type");
         
         // VERIFICAR RESTRICCIONES DE ROL
-        // Si hay una sesión activa, solo ADMIN puede registrar usuarios
         HttpSession session = req.getSession(false);
         if (session != null && session.getAttribute("userId") != null) {
             String currentUserRole = (String) session.getAttribute("userRole");
