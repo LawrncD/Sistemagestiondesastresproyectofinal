@@ -19,10 +19,16 @@ public class Evacuacion implements Comparable<Evacuacion> {
         this.estado = "PENDIENTE";
         this.personasEvacuadas = 0;
     }
+    /*
+     * Calcula la prioridad de la evacuación
+     */
 
     public int calcularPrioridad() {
         return prioridad; 
     }
+    /*
+     * Obtiene el porcentaje de la evacuación completado
+     */
 
     public double getPorcentajeCompletado() {
         if (personasTotales == 0) return 100.0;
@@ -32,6 +38,9 @@ public class Evacuacion implements Comparable<Evacuacion> {
     public boolean estaCompletada() {
         return personasEvacuadas >= personasTotales;
     }
+    /*
+     * Actualiza el progreso de la evacuación
+     */
 
     public void actualizarProgreso(int personasEvacuadas) {
         this.personasEvacuadas += personasEvacuadas;

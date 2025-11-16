@@ -19,6 +19,9 @@ public class EquipoDeRescate {
         this.disponible = true;
         this.especialidades = especialidades;
     }
+    /*
+     * Asigna el equipo a una zona de desastre
+     */
 
     public boolean asignarAZona(String zonaId) {
         if (!disponible) return false;

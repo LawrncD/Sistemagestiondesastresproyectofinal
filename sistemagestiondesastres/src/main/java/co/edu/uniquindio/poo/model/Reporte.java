@@ -15,7 +15,9 @@ public class Reporte {
         this.contenido = contenido;
         this.usuarioGenerador = usuarioGenerador;
     }
-    // metodos generales 
+    /*
+     * Genera el contenido del reporte
+     */
 
     public String generarContenido() {
         return String.format("Reporte (%s) - %s: %s", id, fecha.toString(), contenido);
