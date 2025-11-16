@@ -40,4 +40,5 @@ co\edu\uniquindio\poo\app\SistemaGestionDesastres.class
 co\edu\uniquindio\poo\app\servlets\ApiUsuariosServlet.class
 co\edu\uniquindio\poo\services\RouteOptimizationService.class
 co\edu\uniquindio\poo\ds\ColaPrioridadEvacuaciones.class
+co\edu\uniquindio\poo\ds\ArbolDistribucion$NodoDistribucion.class
 co\edu\uniquindio\poo\model\Evacuacion.class
