@@ -22,16 +22,53 @@ import co.edu.uniquindio.poo.model.TipoRecurso;
 import co.edu.uniquindio.poo.model.Usuario;
 import co.edu.uniquindio.poo.model.ZonaAfectada;
 
+/**
+ * Clase principal del sistema de gestión de desastres que implementa el patrón Singleton.
+ * 
+ * Esta clase centraliza toda la lógica de negocio del sistema, gestionando usuarios,
+ * zonas afectadas, recursos, equipos de rescate, evacuaciones y notificaciones.
+ * 
+ * <p>Responsabilidades principales:</p>
+ * <ul>
+ *   <li>Administración de usuarios (registro, autenticación)</li>
+ *   <li>Gestión de zonas afectadas mediante grafo dirigido</li>
+ *   <li>Control de recursos y su distribución</li>
+ *   <li>Coordinación de equipos de rescate</li>
+ *   <li>Priorización de evacuaciones</li>
+ *   <li>Sistema de notificaciones en tiempo real</li>
+ *   <li>Generación de reportes estadísticos</li>
+ * </ul>
+ * 
+ * @author Sistema de Gestión de Desastres - Universidad del Quindío
+ * @version 1.0
+ * @since 2025
+ */
 public class SistemaGestionDesastres {
+    /** Instancia única del sistema (patrón Singleton) */
     private static SistemaGestionDesastres instance;
 
+    /** Mapa de usuarios registrados, indexados por su identificador */
     private Map<String, Usuario> usuarios = new HashMap<>();
+    
+    /** Grafo dirigido que representa las zonas afectadas y sus conexiones */
     private GrafoDirigido grafo = new GrafoDirigido();
+    
+    /** Mapa de recursos disponibles en diferentes ubicaciones */
     private MapaRecursos mapaRecursos = new MapaRecursos();
+    
+    /** Árbol de distribución para optimizar el envío de recursos */
     private ArbolDistribucion arbolDistribucion = new ArbolDistribucion();
+    
+    /** Lista de reportes generados por el sistema */
     private List<Reporte> reportes = new ArrayList<>();
+    
+    /** Cola de prioridad para gestionar evacuaciones según nivel de riesgo */
     private ColaPrioridadEvacuaciones colaEvacuaciones = new ColaPrioridadEvacuaciones();
+    
+    /** Mapa de equipos de rescate disponibles, indexados por su identificador */
     private Map<String, EquipoDeRescate> equiposDisponibles = new HashMap<>();
+    
+    /** Lista de notificaciones del sistema ordenada por recencia */
     private List<Notificacion> notificaciones = new ArrayList<>();
 
     public ColaPrioridadEvacuaciones getColaEvacuaciones() {
@@ -398,39 +435,65 @@ public void generarInterfazCompletaHTML() {
     // ==================== MÉTODOS PARA NOTIFICACIONES ====================
 
     /**
-     * Agregar una nueva notificación al sistema
+     * Agrega una nueva notificación al sistema sin zona relacionada.
+     * 
+     * La notificación se agrega al inicio de la lista para mantener
+     * el orden cronológico inverso (más recientes primero).
+     * 
+     * @param tipo Tipo de notificación a crear
+     * @param mensaje Descripción detallada del evento
      */
     public void agregarNotificacion(TipoNotificacion tipo, String mensaje) {
         Notificacion notif = new Notificacion(tipo, mensaje);
-        notificaciones.add(0, notif); // Agregar al inicio para mostrar las más recientes primero
-        System.out.println("🔔 Nueva notificación: " + mensaje);
+        notificaciones.add(0, notif);
+        System.out.println("Nueva notificación: " + mensaje);
     }
 
     /**
-     * Agregar notificación con zona relacionada
+     * Agrega una nueva notificación asociada a una zona específica.
+     * 
+     * Este método vincula la notificación con una zona afectada,
+     * permitiendo filtrar y consultar notificaciones por zona.
+     * 
+     * @param tipo Tipo de notificación a crear
+     * @param mensaje Descripción detallada del evento
+     * @param zonaId Identificador de la zona relacionada
      */
     public void agregarNotificacion(TipoNotificacion tipo, String mensaje, String zonaId) {
         Notificacion notif = new Notificacion(tipo, mensaje, zonaId);
         notificaciones.add(0, notif);
-        System.out.println("🔔 Nueva notificación [" + zonaId + "]: " + mensaje);
+        System.out.println("Nueva notificación [" + zonaId + "]: " + mensaje);
     }
 
     /**
-     * Obtener todas las notificaciones (las más recientes primero)
+     * Obtiene una copia de todas las notificaciones del sistema.
+     * 
+     * Las notificaciones se retornan en orden cronológico inverso,
+     * con las más recientes al inicio de la lista.
+     * 
+     * @return Lista inmutable de notificaciones
      */
     public List<Notificacion> obtenerNotificaciones() {
         return new ArrayList<>(notificaciones);
     }
 
     /**
-     * Contar notificaciones no leídas
+     * Cuenta el número de notificaciones no leídas.
+     * 
+     * Este método es útil para mostrar badges de notificaciones
+     * pendientes en la interfaz de usuario.
+     * 
+     * @return Cantidad de notificaciones sin leer
      */
     public int contarNotificacionesNoLeidas() {
         return (int) notificaciones.stream().filter(n -> !n.isLeida()).count();
     }
 
     /**
-     * Marcar una notificación como leída
+     * Marca una notificación específica como leída.
+     * 
+     * @param notifId Identificador de la notificación
+     * @return true si la notificación fue encontrada y marcada, false en caso contrario
      */
     public boolean marcarNotificacionComoLeida(int notifId) {
         for (Notificacion n : notificaciones) {
@@ -443,7 +506,10 @@ public void generarInterfazCompletaHTML() {
     }
 
     /**
-     * Marcar todas las notificaciones como leídas
+     * Marca todas las notificaciones del sistema como leídas.
+     * 
+     * Este método es útil cuando el usuario desea limpiar
+     * todas las notificaciones pendientes de una vez.
      */
     public void marcarTodasNotificacionesComoLeidas() {
         for (Notificacion n : notificaciones) {
@@ -452,7 +518,12 @@ public void generarInterfazCompletaHTML() {
     }
 
     /**
-     * Limpiar notificaciones antiguas (opcional, para mantener la lista manejable)
+     * Limpia notificaciones antiguas para mantener la lista manejable.
+     * 
+     * Conserva únicamente las notificaciones más recientes hasta
+     * el límite especificado, eliminando las más antiguas.
+     * 
+     * @param maxNotificaciones Número máximo de notificaciones a conservar
      */
     public void limpiarNotificacionesAntiguas(int maxNotificaciones) {
         if (notificaciones.size() > maxNotificaciones) {

@@ -11,23 +11,71 @@ import java.util.PriorityQueue;
 import co.edu.uniquindio.poo.model.Ruta;
 import co.edu.uniquindio.poo.model.ZonaAfectada;
 
+/**
+ * Estructura de datos de grafo dirigido para representar zonas y rutas.
+ * 
+ * Esta clase implementa un grafo dirigido ponderado donde los nodos son
+ * zonas afectadas y las aristas son rutas que las conectan. Proporciona
+ * algoritmos de búsqueda de caminos óptimos utilizando Dijkstra.
+ * 
+ * <p>Funcionalidades principales:</p>
+ * <ul>
+ *   <li>Gestión de nodos (zonas afectadas)</li>
+ *   <li>Gestión de aristas (rutas entre zonas)</li>
+ *   <li>Búsqueda de ruta más corta (Dijkstra por tiempo)</li>
+ *   <li>Búsqueda de rutas alternativas</li>
+ *   <li>Consultas de zonas accesibles</li>
+ * </ul>
+ * 
+ * @author Sistema de Gestión de Desastres - Universidad del Quindío
+ * @version 1.0
+ * @since 2025
+ */
 public class GrafoDirigido {
+    /** Mapa de zonas afectadas indexadas por su identificador */
     private Map<String, ZonaAfectada> nodos = new HashMap<>();
-    private Map<String, List<Ruta>> aristas = new HashMap<>(); // origenId -> lista de rutas
+    
+    /** Mapa de rutas salientes de cada zona, indexadas por ID de origen */
+    private Map<String, List<Ruta>> aristas = new HashMap<>();
+    
+    /**
+     * Obtiene una lista de todas las zonas afectadas en el grafo.
+     * 
+     * @return Lista inmutable de zonas afectadas
+     */
     public java.util.List<co.edu.uniquindio.poo.model.ZonaAfectada> obtenerZonas() {
-    return new java.util.ArrayList<>(nodos.values());
+        return new java.util.ArrayList<>(nodos.values());
     }
+    
+    /**
+     * Agrega una zona afectada al grafo como un nuevo nodo.
+     * 
+     * @param zona Zona afectada a agregar
+     */
     public void agregarNodo(ZonaAfectada zona) {
         nodos.put(zona.getId(), zona);
     }
 
+    /**
+     * Agrega una ruta al grafo como una nueva arista dirigida.
+     * 
+     * La ruta se almacena en la lista de salida del nodo origen.
+     * 
+     * @param ruta Ruta a agregar entre dos zonas
+     */
     public void agregarArista(Ruta ruta) {
         aristas.computeIfAbsent(ruta.getOrigenId(), k -> new ArrayList<>()).add(ruta);
     }
 
     /**
-     * Implementación de Dijkstra que devuelve la lista de IDs de rutas que componen el camino más corto
-     * (o null si no hay camino). Prioriza por tiempo.
+     * Calcula la ruta más corta entre dos zonas usando el algoritmo de Dijkstra.
+     * 
+     * Este método optimiza el camino basándose en el tiempo de recorrido,
+     * considerando únicamente rutas disponibles (no bloqueadas).
+     * 
+     * @param origenId Identificador de la zona de origen
+     * @param destinoId Identificador de la zona de destino
+     * @return Lista de rutas que conforman el camino más corto, o null si no existe camino
      */
     public List<Ruta> obtenerRutaMasCorta(String origenId, String destinoId) {
         if (!nodos.containsKey(origenId) || !nodos.containsKey(destinoId)) return null;

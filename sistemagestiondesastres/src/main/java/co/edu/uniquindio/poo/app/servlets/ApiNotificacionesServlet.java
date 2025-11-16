@@ -14,16 +14,38 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Servlet para gestionar notificaciones del sistema
- * GET: obtener todas las notificaciones
- * PUT: marcar una notificación como leída
- * DELETE: marcar todas como leídas
+ * Servlet REST para la gestión de notificaciones del sistema.
+ * 
+ * Proporciona endpoints para consultar, marcar como leídas y gestionar
+ * las notificaciones generadas por eventos del sistema de desastres.
+ * 
+ * <p>Endpoints disponibles:</p>
+ * <ul>
+ *   <li>GET /api/notificaciones - Obtiene todas las notificaciones con estadísticas</li>
+ *   <li>PUT /api/notificaciones - Marca una notificación específica como leída</li>
+ *   <li>DELETE /api/notificaciones - Marca todas las notificaciones como leídas</li>
+ * </ul>
+ * 
+ * @author Sistema de Gestión de Desastres - Universidad del Quindío
+ * @version 1.0
+ * @since 2025
  */
 @WebServlet("/api/notificaciones")
 public class ApiNotificacionesServlet extends HttpServlet {
     private final SistemaGestionDesastres sistema = SistemaGestionDesastres.getInstance();
     private final Gson gson = new Gson();
 
+    /**
+     * Maneja solicitudes GET para obtener todas las notificaciones.
+     * 
+     * Retorna un objeto JSON con el total de notificaciones, cantidad de no leídas
+     * y un array detallado de cada notificación con sus atributos completos.
+     * 
+     * @param req Objeto HttpServletRequest con los parámetros de la petición
+     * @param resp Objeto HttpServletResponse para enviar la respuesta
+     * @throws ServletException Si ocurre un error en el servlet
+     * @throws IOException Si ocurre un error de entrada/salida
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
@@ -60,6 +82,17 @@ public class ApiNotificacionesServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Maneja solicitudes PUT para marcar una notificación como leída.
+     * 
+     * Espera un cuerpo JSON con el campo "id" de la notificación a marcar.
+     * Retorna el conteo actualizado de notificaciones no leídas.
+     * 
+     * @param req Objeto HttpServletRequest con el ID de la notificación en el cuerpo
+     * @param resp Objeto HttpServletResponse para enviar la respuesta
+     * @throws ServletException Si ocurre un error en el servlet
+     * @throws IOException Si ocurre un error de entrada/salida
+     */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
@@ -94,6 +127,17 @@ public class ApiNotificacionesServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Maneja solicitudes DELETE para marcar todas las notificaciones como leídas.
+     * 
+     * No requiere parámetros. Marca todas las notificaciones existentes como leídas
+     * y retorna una confirmación con el contador de no leídas en cero.
+     * 
+     * @param req Objeto HttpServletRequest con los parámetros de la petición
+     * @param resp Objeto HttpServletResponse para enviar la respuesta
+     * @throws ServletException Si ocurre un error en el servlet
+     * @throws IOException Si ocurre un error de entrada/salida
+     */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
