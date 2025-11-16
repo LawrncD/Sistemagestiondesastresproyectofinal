@@ -30,6 +30,7 @@ co\edu\uniquindio\poo\model\Notificacion$TipoNotificacion.class
 co\edu\uniquindio\poo\model\OperadorDeEmergencia.class
 co\edu\uniquindio\poo\ds\ArbolDistribucion.class
 co\edu\uniquindio\poo\app\servlets\ApiSessionServlet.class
+co\edu\uniquindio\poo\app\servlets\ApiSimulacionesServlet.class
 co\edu\uniquindio\poo\model\ZonaAfectada.class
 co\edu\uniquindio\poo\app\servlets\ApiRoutesServlet.class
 co\edu\uniquindio\poo\app\servlets\ApiEvacuacionesServlet$EvacuacionInfo.class

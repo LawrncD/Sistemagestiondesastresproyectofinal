@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simulaciones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            background: white;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        pre {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Simulaciones</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Simulación de Desastre</h2>
+        <button onclick="testDesastre()">Ejecutar Test Desastre</button>
+        <div id="resultDesastre" class="result" style="display:none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Simulación de Evacuación</h2>
+        <button onclick="testEvacuacion()">Ejecutar Test Evacuación</button>
+        <div id="resultEvacuacion" class="result" style="display:none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Ver Zonas Disponibles</h2>
+        <button onclick="verZonas()">Cargar Zonas</button>
+        <div id="resultZonas" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        async function testDesastre() {
+            const resultDiv = document.getElementById('resultDesastre');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>⏳ Ejecutando test...</p>';
+            
+            try {
+                // Primero obtener zonas
+                const zonasResponse = await fetch('/api/zones');
+                const zonas = await zonasResponse.json();
+                
+                if (zonas.length === 0) {
+                    resultDiv.innerHTML = '<p style="color: orange;">⚠️ No hay zonas registradas. Registra zonas primero.</p>';
+                    return;
+                }
+                
+                // Tomar las primeras 2 zonas
+                const zonasIds = zonas.slice(0, Math.min(2, zonas.length)).map(z => z.id);
+                
+                const payload = {
+                    tipoDesastre: 'TERREMOTO',
+                    intensidad: 75,
+                    zonasAfectadas: zonasIds
+                };
+                
+                console.log('📤 Enviando:', payload);
+                
+                const response = await fetch('/api/simulaciones/desastre', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log('📡 Status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Respuesta:', data);
+                
+                resultDiv.innerHTML = `
+                    <h3 style="color: green;">✅ Test Exitoso</h3>
+                    <p><strong>Tipo:</strong> ${data.tipoDesastre}</p>
+                    <p><strong>Intensidad:</strong> ${data.intensidad}%</p>
+                    <p><strong>Población Afectada:</strong> ${data.poblacionTotalAfectada.toLocaleString()}</p>
+                    <p><strong>Zonas:</strong> ${data.zonasAfectadas.length}</p>
+                    <h4>Detalles:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                resultDiv.innerHTML = `
+                    <h3 style="color: red;">❌ Error en Test</h3>
+                    <p><strong>Mensaje:</strong> ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+        
+        async function testEvacuacion() {
+            const resultDiv = document.getElementById('resultEvacuacion');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>⏳ Ejecutando test...</p>';
+            
+            try {
+                // Primero obtener zonas
+                const zonasResponse = await fetch('/api/zones');
+                const zonas = await zonasResponse.json();
+                
+                if (zonas.length < 2) {
+                    resultDiv.innerHTML = '<p style="color: orange;">⚠️ Se necesitan al menos 2 zonas. Registra más zonas.</p>';
+                    return;
+                }
+                
+                const payload = {
+                    zonaOrigenId: zonas[0].id,
+                    zonaDestinoId: zonas[1].id,
+                    numeroPersonas: 5000
+                };
+                
+                console.log('📤 Enviando:', payload);
+                
+                const response = await fetch('/api/simulaciones/evacuacion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log('📡 Status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Respuesta:', data);
+                
+                resultDiv.innerHTML = `
+                    <h3 style="color: green;">✅ Test Exitoso</h3>
+                    <p><strong>Origen:</strong> ${data.zonaOrigen}</p>
+                    <p><strong>Destino:</strong> ${data.zonaDestino}</p>
+                    <p><strong>Personas:</strong> ${data.numeroPersonas.toLocaleString()}</p>
+                    <p><strong>Distancia:</strong> ${data.distanciaKm} km</p>
+                    <p><strong>Vehículos:</strong> ${data.vehiculosNecesarios}</p>
+                    <p><strong>Tiempo:</strong> ${data.tiempoEstimadoHoras} horas</p>
+                    <h4>Detalles:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                resultDiv.innerHTML = `
+                    <h3 style="color: red;">❌ Error en Test</h3>
+                    <p><strong>Mensaje:</strong> ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+        
+        async function verZonas() {
+            const resultDiv = document.getElementById('resultZonas');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>⏳ Cargando zonas...</p>';
+            
+            try {
+                const response = await fetch('/api/zones');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const zonas = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <h3 style="color: green;">✅ Zonas Cargadas: ${zonas.length}</h3>
+                    <pre>${JSON.stringify(zonas, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3 style="color: red;">❌ Error</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

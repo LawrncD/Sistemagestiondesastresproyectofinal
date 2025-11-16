@@ -1647,6 +1647,13 @@ function switchTab(tabName) {
             refreshMap();
         }, 100);
     }
+    
+    // Cargar zonas si es la pestaña de simulaciones
+    if (tabName === 'simulations') {
+        setTimeout(() => {
+            cargarZonasSimulacion();
+        }, 100);
+    }
 }
 
 // ===== MODAL FUNCTIONS =====
@@ -3603,7 +3610,470 @@ window.toggleNotifications = toggleNotifications;
 window.markNotificationAsRead = markNotificationAsRead;
 window.markAllNotificationsAsRead = markAllNotificationsAsRead;
 
+// ===== SIMULATIONS FUNCTIONALITY =====
+
+/**
+ * Simular desastre natural
+ */
+async function simularDesastre(event) {
+    event.preventDefault();
+    
+    console.log('========================================');
+    console.log('🌋 INICIANDO SIMULACIÓN DE DESASTRE');
+    
+    const tipo = document.getElementById('tipoDesastre').value;
+    const intensidad = parseInt(document.getElementById('intensidad').value);
+    
+    console.log('📝 Tipo:', tipo);
+    console.log('📝 Intensidad:', intensidad);
+    
+    // Obtener zonas seleccionadas desde checkboxes
+    const checkboxes = document.querySelectorAll('#zonasAfectadasCheckboxes input[type="checkbox"]:checked');
+    const zonasAfectadas = Array.from(checkboxes).map(cb => cb.value);
+    
+    console.log('📝 Zonas seleccionadas:', zonasAfectadas);
+    
+    if (zonasAfectadas.length === 0) {
+        console.warn('⚠️ No hay zonas seleccionadas');
+        showToast('warning', 'Simulación', 'Selecciona al menos una zona afectada');
+        return;
+    }
+    
+    const payload = {
+        tipoDesastre: tipo,
+        intensidad: intensidad,
+        zonasAfectadas: zonasAfectadas
+    };
+    
+    console.log('📤 Enviando payload:', JSON.stringify(payload, null, 2));
+    
+    try {
+        console.log('🌐 Haciendo fetch a /api/simulaciones/desastre');
+        
+        const response = await fetch('/api/simulaciones/desastre', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error response:', errorText);
+            throw new Error('Error en la simulación: ' + response.status);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Datos recibidos:', data);
+        
+        mostrarResultadosDesastre(data);
+        showToast('success', 'Simulación Exitosa', `Desastre ${tipo.toLowerCase()} simulado correctamente`);
+        
+        // Recargar zonas para ver riesgos actualizados
+        await loadZones();
+        await cargarZonasSimulacion();
+        
+    } catch (error) {
+        console.error('❌ Error en simulación:', error);
+        showToast('error', 'Error', 'No se pudo ejecutar la simulación: ' + error.message);
+    }
+    
+    console.log('========================================');
+}
+
+/**
+ * Mostrar resultados de simulación de desastre
+ */
+function mostrarResultadosDesastre(data) {
+    const resultsDiv = document.getElementById('disasterResults');
+    const contentDiv = document.getElementById('disasterResultsContent');
+    
+    const tipoIcons = {
+        'TERREMOTO': '🏔️',
+        'INUNDACION': '🌊',
+        'INCENDIO': '🔥',
+        'HURACAN': '🌀',
+        'DESLIZAMIENTO': '⛰️',
+        'SEQUIA': '🌵'
+    };
+    
+    let html = `
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">${tipoIcons[data.tipoDesastre] || '⚠️'}</div>
+            <h3 style="margin: 0; font-size: 1.5rem;">
+                Desastre ${data.tipoDesastre} - Intensidad ${data.intensidad}%
+            </h3>
+            <p style="margin-top: 0.5rem; opacity: 0.9; font-size: 0.875rem;">
+                ${data.zonasAfectadas.length} zona(s) afectada(s) • ${data.poblacionTotalAfectada.toLocaleString()} personas en riesgo
+            </p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    `;
+    
+    data.zonasAfectadas.forEach(zona => {
+        const riesgoColor = zona.nivelRiesgoNuevo >= 80 ? '#dc2626' : zona.nivelRiesgoNuevo >= 60 ? '#f59e0b' : '#16a34a';
+        const incremento = zona.nivelRiesgoNuevo - zona.nivelRiesgoAnterior;
+        
+        html += `
+            <div style="background: white; border: 2px solid ${riesgoColor}; border-radius: 8px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                    <h4 style="margin: 0; color: #1e293b; font-size: 1rem;">${zona.nombreZona}</h4>
+                    ${zona.critica ? '<span style="background: #dc2626; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">CRÍTICA</span>' : ''}
+                </div>
+                <div style="margin-bottom: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.25rem;">
+                        <span style="color: #64748b;">Riesgo anterior:</span>
+                        <span style="font-weight: 600; color: #64748b;">${zona.nivelRiesgoAnterior.toFixed(1)}%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                        <span style="color: #1e293b;">Riesgo actual:</span>
+                        <span style="font-weight: 700; color: ${riesgoColor};">${zona.nivelRiesgoNuevo.toFixed(1)}%</span>
+                    </div>
+                </div>
+                <div style="background: ${riesgoColor}20; padding: 0.5rem; border-radius: 6px; text-align: center;">
+                    <span style="color: ${riesgoColor}; font-weight: 700; font-size: 0.875rem;">
+                        <i class="fas fa-arrow-up"></i> +${incremento.toFixed(1)}% incremento
+                    </span>
+                </div>
+                <div style="margin-top: 0.75rem; font-size: 0.875rem; color: #64748b;">
+                    <i class="fas fa-users"></i> ${zona.poblacionAfectada.toLocaleString()} personas afectadas
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
+    
+    if (data.notificacionesGeneradas && data.notificacionesGeneradas.length > 0) {
+        html += `
+            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 8px;">
+                <h4 style="color: #92400e; margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-bell"></i> Notificaciones Generadas
+                </h4>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #92400e;">
+                    ${data.notificacionesGeneradas.map(n => `<li>${n}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+    
+    contentDiv.innerHTML = html;
+    resultsDiv.style.display = 'block';
+    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/**
+ * Simular evacuación masiva
+ */
+async function simularEvacuacion(event) {
+    event.preventDefault();
+    
+    console.log('========================================');
+    console.log('🚑 INICIANDO SIMULACIÓN DE EVACUACIÓN');
+    
+    const zonaOrigenId = document.getElementById('zonaOrigen').value;
+    const zonaDestinoId = document.getElementById('zonaDestino').value;
+    const personasEvacuar = parseInt(document.getElementById('personasEvacuar').value);
+    
+    console.log('📝 Origen:', zonaOrigenId);
+    console.log('📝 Destino:', zonaDestinoId);
+    console.log('📝 Personas:', personasEvacuar);
+    
+    if (zonaOrigenId === zonaDestinoId) {
+        console.warn('⚠️ Origen y destino son iguales');
+        showToast('warning', 'Evacuación', 'La zona de origen y destino no pueden ser la misma');
+        return;
+    }
+    
+    const payload = {
+        zonaOrigenId: zonaOrigenId,
+        zonaDestinoId: zonaDestinoId,
+        numeroPersonas: personasEvacuar
+    };
+    
+    console.log('📤 Enviando payload:', JSON.stringify(payload, null, 2));
+    
+    try {
+        console.log('🌐 Haciendo fetch a /api/simulaciones/evacuacion');
+        
+        const response = await fetch('/api/simulaciones/evacuacion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error response:', errorText);
+            throw new Error('Error en la simulación: ' + response.status);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Datos recibidos:', data);
+        
+        mostrarResultadosEvacuacion(data);
+        showToast('success', 'Plan Generado', 'Plan de evacuación generado correctamente');
+        
+    } catch (error) {
+        console.error('❌ Error en evacuación:', error);
+        showToast('error', 'Error', 'No se pudo generar el plan de evacuación: ' + error.message);
+    }
+    
+    console.log('========================================');
+}
+
+/**
+ * Mostrar resultados de simulación de evacuación
+ */
+function mostrarResultadosEvacuacion(data) {
+    const resultsDiv = document.getElementById('evacuationResults');
+    const contentDiv = document.getElementById('evacuationResultsContent');
+    
+    let html = `
+        <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.5rem;">Plan de Evacuación</h3>
+                    <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.875rem;">
+                        ${data.zonaOrigen} → ${data.zonaDestino}
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 2rem; font-weight: bold;">${data.numeroPersonas.toLocaleString()}</div>
+                    <div style="font-size: 0.875rem; opacity: 0.9;">personas</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold;">${data.distanciaKm.toFixed(1)} km</div>
+                    <div style="font-size: 0.75rem; opacity: 0.9;">Distancia</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold;">${data.vehiculosNecesarios}</div>
+                    <div style="font-size: 0.75rem; opacity: 0.9;">Vehículos</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold;">${data.tiempoEstimadoHoras.toFixed(1)} h</div>
+                    <div style="font-size: 0.75rem; opacity: 0.9;">Tiempo Est.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-route"></i> Ruta Óptima
+            </h4>
+            <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: #1e293b;">
+    `;
+    
+    data.ruta.forEach((punto, index) => {
+        html += `
+            <span style="background: #3b82f6; color: white; padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 600;">
+                ${punto}
+            </span>
+        `;
+        if (index < data.ruta.length - 1) {
+            html += `<i class="fas fa-arrow-right" style="color: #3b82f6;"></i>`;
+        }
+    });
+    
+    html += `
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-boxes"></i> Recursos Necesarios
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+    `;
+    
+    data.recursosNecesarios.forEach(recurso => {
+        html += `
+            <div style="background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #64748b; font-size: 0.875rem;">${recurso.tipo}</span>
+                    <span style="color: #1e293b; font-weight: 700; font-size: 1.25rem;">${recurso.cantidad}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+            </div>
+        </div>
+        
+        <div>
+            <h4 style="color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-tasks"></i> Plan de Ejecución
+            </h4>
+            <div style="display: grid; gap: 0.75rem;">
+    `;
+    
+    data.planEjecucion.forEach((fase, index) => {
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+        const color = colors[index % colors.length];
+        html += `
+            <div style="background: ${color}10; border-left: 4px solid ${color}; padding: 1rem; border-radius: 8px;">
+                <div style="font-weight: 600; color: ${color}; margin-bottom: 0.5rem;">
+                    Fase ${index + 1}
+                </div>
+                <div style="color: #1e293b; font-size: 0.95rem;">
+                    ${fase}
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+            </div>
+        </div>
+    `;
+    
+    contentDiv.innerHTML = html;
+    resultsDiv.style.display = 'block';
+    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/**
+ * Cargar zonas en los selectores de simulaciones
+ */
+async function cargarZonasSimulacion() {
+    try {
+        console.log('🔄 Cargando zonas para simulaciones...');
+        
+        // Usar zonesData si ya está cargado, sino cargar desde API
+        let zones = zonesData && zonesData.length > 0 ? zonesData : [];
+        
+        if (zones.length === 0) {
+            console.log('📡 Zonas no cargadas, obteniendo desde API...');
+            const response = await fetch('/api/zones');
+            if (response.ok) {
+                zones = await response.json();
+                console.log('✅ Zonas obtenidas:', zones.length);
+            } else {
+                console.error('❌ Error al obtener zonas:', response.status);
+                return;
+            }
+        } else {
+            console.log('✅ Usando zonas ya cargadas:', zones.length);
+        }
+        
+        // Checkboxes de zonas afectadas (para desastres naturales)
+        const zonasAfectadasContainer = document.getElementById('zonasAfectadasCheckboxes');
+        if (zonasAfectadasContainer) {
+            if (zones.length > 0) {
+                zonasAfectadasContainer.innerHTML = zones.map(z => {
+                    const riesgo = z.nivelRiesgo || z.nivelDeRiesgo || 0;
+                    const poblacion = z.poblacion || 0;
+                    return `
+                        <label style="display: flex; align-items: center; padding: 0.75rem; background-color: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid #e2e8f0;" 
+                               onmouseover="this.style.backgroundColor='#eff6ff'; this.style.borderColor='#3b82f6'" 
+                               onmouseout="this.style.backgroundColor='white'; this.style.borderColor='#e2e8f0'">
+                            <input type="checkbox" name="zonaAfectada" value="${z.id}" 
+                                   style="margin-right: 0.75rem; width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1e293b; font-size: 0.95rem;">${z.nombre}</div>
+                                <div style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">
+                                    <i class="fas fa-exclamation-triangle" style="color: ${riesgo >= 70 ? '#dc2626' : riesgo >= 50 ? '#f59e0b' : '#16a34a'};"></i>
+                                    Riesgo: ${riesgo.toFixed(1)}% • 
+                                    <i class="fas fa-users"></i> ${poblacion.toLocaleString()} personas
+                                </div>
+                            </div>
+                        </label>
+                    `;
+                }).join('');
+                console.log('✅ Checkboxes de zonas afectadas creados');
+            } else {
+                zonasAfectadasContainer.innerHTML = '<p style="color: #64748b; text-align: center; padding: 1rem;"><i class="fas fa-info-circle"></i> No hay zonas registradas. Ve a la pestaña "Zonas" para agregar zonas.</p>';
+            }
+        }
+        
+        // Select de zona origen (para evacuaciones)
+        const zonaOrigenSelect = document.getElementById('zonaOrigen');
+        if (zonaOrigenSelect) {
+            if (zones.length > 0) {
+                zonaOrigenSelect.innerHTML = '<option value="">-- Selecciona zona a evacuar --</option>' + 
+                    zones.map(z => {
+                        const riesgo = z.nivelRiesgo || z.nivelDeRiesgo || 0;
+                        const riesgoIcon = riesgo >= 70 ? '🔴' : riesgo >= 50 ? '🟠' : '🟢';
+                        return `<option value="${z.id}">${riesgoIcon} ${z.nombre} (Riesgo: ${riesgo.toFixed(1)}%)</option>`;
+                    }).join('');
+                console.log('✅ Select de zona origen creado');
+            } else {
+                zonaOrigenSelect.innerHTML = '<option value="">No hay zonas disponibles</option>';
+            }
+        }
+        
+        // Select de zona destino (ordenadas por menor riesgo)
+        const zonaDestinoSelect = document.getElementById('zonaDestino');
+        if (zonaDestinoSelect) {
+            if (zones.length > 0) {
+                const zonesOrdenadas = [...zones].sort((a, b) => {
+                    const riesgoA = a.nivelRiesgo || a.nivelDeRiesgo || 0;
+                    const riesgoB = b.nivelRiesgo || b.nivelDeRiesgo || 0;
+                    return riesgoA - riesgoB;
+                });
+                zonaDestinoSelect.innerHTML = '<option value="">-- Selecciona zona segura --</option>' + 
+                    zonesOrdenadas.map(z => {
+                        const riesgo = z.nivelRiesgo || z.nivelDeRiesgo || 0;
+                        const seguridadLabel = riesgo < 40 ? '✓ Segura' : 
+                                             riesgo < 60 ? '⚠ Media' : '✗ Alto riesgo';
+                        const icon = riesgo < 40 ? '🟢' : riesgo < 60 ? '🟡' : '🔴';
+                        return `<option value="${z.id}">${icon} ${z.nombre} - Riesgo: ${riesgo.toFixed(1)}% (${seguridadLabel})</option>`;
+                    }).join('');
+                console.log('✅ Select de zona destino creado');
+            } else {
+                zonaDestinoSelect.innerHTML = '<option value="">No hay zonas disponibles</option>';
+            }
+        }
+        
+        console.log('✅ Zonas cargadas correctamente en simulaciones');
+        
+    } catch (error) {
+        console.error('❌ Error cargando zonas para simulación:', error);
+    }
+}
+
+/**
+ * Limpiar formulario de desastre
+ */
+function limpiarFormularioDesastre() {
+    document.getElementById('disasterForm').reset();
+    document.getElementById('intensidadValue').textContent = '50%';
+    const checkboxes = document.querySelectorAll('#zonasAfectadasCheckboxes input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    document.getElementById('disasterResults').style.display = 'none';
+}
+
+/**
+ * Limpiar formulario de evacuación
+ */
+function limpiarFormularioEvacuacion() {
+    document.getElementById('evacuationForm').reset();
+    document.getElementById('evacuationResults').style.display = 'none';
+}
+
+// Hacer funciones globales
+window.simularDesastre = simularDesastre;
+window.simularEvacuacion = simularEvacuacion;
+window.limpiarFormularioDesastre = limpiarFormularioDesastre;
+window.limpiarFormularioEvacuacion = limpiarFormularioEvacuacion;
+
 // Inicializar notificaciones cuando cargue la página
 document.addEventListener('DOMContentLoaded', () => {
     initNotifications();
 });
+

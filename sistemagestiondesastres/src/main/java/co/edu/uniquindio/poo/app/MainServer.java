@@ -36,6 +36,7 @@ public class MainServer {
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiOptimalRouteServlet.class, "/api/optimal-route");
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiUsuariosServlet.class, "/api/users");
         ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiEquiposServlet.class, "/api/equipos");
+        ctx.addServlet(co.edu.uniquindio.poo.app.servlets.ApiSimulacionesServlet.class, "/api/simulaciones/*");
 
         server.setHandler(ctx);
         server.start();

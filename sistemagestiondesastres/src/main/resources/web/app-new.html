@@ -1248,6 +1248,9 @@
             <button class="tab-btn" onclick="switchTab('evacuations')">
                 <i class="fas fa-ambulance"></i> Evacuaciones
             </button>
+            <button class="tab-btn" onclick="switchTab('simulations')">
+                <i class="fas fa-flask"></i> Simulaciones
+            </button>
             <button class="tab-btn" onclick="switchTab('users')">
                 <i class="fas fa-users"></i> Usuarios
             </button>
@@ -1501,6 +1504,183 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulations Tab -->
+        <div id="simulations-tab" class="content-section">
+            <h1 style="margin-bottom: 0.5rem; font-size: 2rem; color: #1e293b;">
+                <i class="fas fa-flask"></i> Simulaciones de Desastres
+            </h1>
+            <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.95rem;">
+                Simula desastres naturales y planifica evacuaciones masivas para una mejor preparación ante emergencias.
+            </p>
+
+            <!-- Main Simulations Card -->
+            <div class="card">
+                <!-- Disaster Simulation Section -->
+                <div style="padding-bottom: 2rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 2rem;">
+                    <h3 style="color: #1e3a8a; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i>
+                        Simular Desastre Natural
+                    </h3>
+                    <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.875rem;">
+                        Simula el impacto de diferentes tipos de desastres sobre las zonas registradas y actualiza sus niveles de riesgo.
+                    </p>
+                    <form id="disasterForm" onsubmit="simularDesastre(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <div class="form-group" style="margin-bottom: 1.5rem;">
+                                    <label style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; display: block;">
+                                        <i class="fas fa-fire-alt" style="color: #dc2626;"></i>
+                                        Tipo de Desastre <span style="color: #dc2626;">*</span>
+                                    </label>
+                                    <select id="tipoDesastre" class="form-input" required style="font-size: 1rem; padding: 0.75rem;">
+                                        <option value="">-- Selecciona un tipo --</option>
+                                        <option value="TERREMOTO">🏔️ Terremoto</option>
+                                        <option value="INUNDACION">🌊 Inundación</option>
+                                        <option value="INCENDIO">🔥 Incendio</option>
+                                        <option value="HURACAN">🌀 Huracán</option>
+                                        <option value="DESLIZAMIENTO">⛰️ Deslizamiento</option>
+                                        <option value="SEQUIA">🌵 Sequía</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; display: block;">
+                                        <i class="fas fa-map-marked-alt" style="color: #f59e0b;"></i>
+                                        Zonas Afectadas <span style="color: #dc2626;">*</span>
+                                    </label>
+                                    <div style="background-color: #f8fafc; padding: 1rem; border-radius: 8px; border: 2px solid #e2e8f0; max-height: 300px; overflow-y: auto;">
+                                        <div id="zonasAfectadasCheckboxes" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                            <p style="color: #64748b; text-align: center; padding: 1rem;">Cargando zonas...</p>
+                                        </div>
+                                    </div>
+                                    <small style="color: #64748b; font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                                        <i class="fas fa-info-circle"></i> Selecciona una o más zonas que serán afectadas por el desastre
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; display: block;">
+                                    <i class="fas fa-sliders-h" style="color: #3b82f6;"></i>
+                                    Intensidad del Desastre: <span id="intensidadValue" style="color: #3b82f6; font-weight: bold;">50%</span>
+                                </label>
+                                <input type="range" id="intensidad" min="10" max="100" value="50" 
+                                       style="width: 100%; height: 8px; border-radius: 5px; background: linear-gradient(to right, #10b981 0%, #fbbf24 50%, #ef4444 100%); cursor: pointer;"
+                                       oninput="document.getElementById('intensidadValue').textContent = this.value + '%'" required>
+                                <div style="display: flex; justify-content: space-between; margin-top: 0.25rem; font-size: 0.75rem; color: #64748b;">
+                                    <span>Mínima</span>
+                                    <span>Máxima</span>
+                                </div>
+                                <div style="margin-top: 2rem; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 1.5rem; border-radius: 12px; border: 2px solid #3b82f6;">
+                                    <h4 style="margin: 0 0 1rem 0; color: #1e40af; font-size: 0.95rem;">
+                                        <i class="fas fa-info-circle"></i> Información
+                                    </h4>
+                                    <ul style="margin: 0; padding-left: 1.25rem; color: #1e40af; font-size: 0.875rem; line-height: 1.6;">
+                                        <li>Selecciona el tipo de desastre natural</li>
+                                        <li>Ajusta la intensidad del impacto</li>
+                                        <li>Marca las zonas que serán afectadas</li>
+                                        <li>Los niveles de riesgo se actualizarán automáticamente</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                            <button type="button" class="btn" onclick="limpiarFormularioDesastre()" 
+                                    style="background-color: #e2e8f0; color: #475569; padding: 0.65rem 1.5rem;">
+                                <i class="fas fa-redo"></i> Limpiar
+                            </button>
+                            <button type="submit" class="btn btn-primary" style="padding: 0.65rem 2rem;">
+                                <i class="fas fa-play"></i> Ejecutar Simulación
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="disasterResults" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #e2e8f0;">
+                        <h4 style="color: #1e3a8a; margin-bottom: 1rem;">
+                            <i class="fas fa-chart-bar"></i> Resultados de la Simulación
+                        </h4>
+                        <div id="disasterResultsContent"></div>
+                    </div>
+                </div>
+
+                <!-- Evacuation Simulation Section -->
+                <div>
+                    <h3 style="color: #1e3a8a; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-ambulance" style="color: #dc2626;"></i>
+                        Simular Evacuación Masiva
+                    </h3>
+                    <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.875rem;">
+                        Planifica evacuaciones masivas calculando rutas óptimas, recursos necesarios y tiempos estimados.
+                    </p>
+                    <form id="evacuationForm" onsubmit="simularEvacuacion(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; display: block;">
+                                    <i class="fas fa-exclamation-circle" style="color: #dc2626;"></i>
+                                    Zona de Origen (Peligro) <span style="color: #dc2626;">*</span>
+                                </label>
+                                <select id="zonaOrigen" class="form-input" required style="font-size: 1rem; padding: 0.75rem;">
+                                    <option value="">Cargando zonas...</option>
+                                </select>
+                                <small style="color: #64748b; font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                                    <i class="fas fa-info-circle"></i> Zona de alta peligrosidad a evacuar
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; display: block;">
+                                    <i class="fas fa-shield-alt" style="color: #16a34a;"></i>
+                                    Zona de Destino (Segura) <span style="color: #dc2626;">*</span>
+                                </label>
+                                <select id="zonaDestino" class="form-input" required style="font-size: 1rem; padding: 0.75rem;">
+                                    <option value="">Cargando zonas...</option>
+                                </select>
+                                <small style="color: #64748b; font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                                    <i class="fas fa-info-circle"></i> Zona con bajo nivel de riesgo
+                                </small>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem; display: block;">
+                                    <i class="fas fa-users" style="color: #3b82f6;"></i>
+                                    Personas a Evacuar <span style="color: #dc2626;">*</span>
+                                </label>
+                                <input type="number" id="personasEvacuar" class="form-input" min="10" max="100000" value="1000" required style="font-size: 1rem; padding: 0.75rem;">
+                                <small style="color: #64748b; font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                                    <i class="fas fa-info-circle"></i> Total de personas a evacuar
+                                </small>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 1.5rem; border-radius: 12px; border: 2px solid #f59e0b;">
+                                <h4 style="margin: 0 0 1rem 0; color: #92400e; font-size: 0.95rem;">
+                                    <i class="fas fa-lightbulb"></i> Datos del Plan
+                                </h4>
+                                <ul style="margin: 0; padding-left: 1.25rem; color: #92400e; font-size: 0.875rem; line-height: 1.6;">
+                                    <li>Ruta óptima calculada automáticamente</li>
+                                    <li>Estimación de vehículos necesarios</li>
+                                    <li>Cálculo de recursos requeridos</li>
+                                    <li>Plan de ejecución por fases</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                            <button type="button" class="btn" onclick="limpiarFormularioEvacuacion()" 
+                                    style="background-color: #e2e8f0; color: #475569; padding: 0.65rem 1.5rem;">
+                                <i class="fas fa-redo"></i> Limpiar
+                            </button>
+                            <button type="submit" class="btn btn-primary" style="padding: 0.65rem 2rem;">
+                                <i class="fas fa-route"></i> Planificar Evacuación
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="evacuationResults" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #e2e8f0;">
+                        <h4 style="color: #1e3a8a; margin-bottom: 1rem;">
+                            <i class="fas fa-clipboard-list"></i> Plan de Evacuación
+                        </h4>
+                        <div id="evacuationResultsContent"></div>
+                    </div>
                 </div>
             </div>
         </div>
