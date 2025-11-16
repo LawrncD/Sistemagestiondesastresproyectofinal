@@ -25,8 +25,10 @@ El proyecto utiliza las siguientes estructuras de datos y patrones:
 
 ## 👥 Autores
 
-- Universidad del Quindío - Programa de Programación Orientada a Objetos
-- Proyecto académico 2025
+-Stefania Herrera
+-Santiago Aguirre
+-Lawrence Daniel
+- Proyecto académico EDT 2025
 
 ## 🛠️ Tecnologías y Herramientas
 
