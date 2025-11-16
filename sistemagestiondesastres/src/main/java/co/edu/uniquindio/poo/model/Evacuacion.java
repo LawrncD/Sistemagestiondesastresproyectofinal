@@ -21,7 +21,7 @@ public class Evacuacion implements Comparable<Evacuacion> {
     }
 
     public int calcularPrioridad() {
-        return prioridad; // en versiones futuras combinar con urgencia de zona
+        return prioridad; 
     }
 
     public double getPorcentajeCompletado() {

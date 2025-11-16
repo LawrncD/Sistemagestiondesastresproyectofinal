@@ -30,5 +30,4 @@ public void mostrarInventario(SistemaGestionDesastres sistema) {
         return true;
     }
 
-    // Otros métodos del diagrama quedan como stubs para próximos pasos
 }

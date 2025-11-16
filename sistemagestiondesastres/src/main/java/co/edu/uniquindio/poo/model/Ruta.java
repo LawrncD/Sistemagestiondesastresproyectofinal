@@ -22,7 +22,7 @@ public class Ruta {
     }
 
     public double calcularTiempoReal() {
-        // En fases avanzadas se puede ajustar por congestion
+        
         return tiempo;
     }
 

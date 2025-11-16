@@ -6,7 +6,7 @@ public abstract class Usuario {
     protected String rol;
     protected String id;
     protected String nombre;
-    protected String passwd; // Nota: en proyecto real almacenar hash
+    protected String passwd; 
     protected String numero;
 
     public Usuario(String id, String nombre, String passwd, String numero, String rol) {
