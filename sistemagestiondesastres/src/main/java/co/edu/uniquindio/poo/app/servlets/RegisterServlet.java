@@ -125,6 +125,9 @@ public class RegisterServlet extends HttpServlet {
             sendError(res, "Error al registrar usuario: " + e.getMessage());
         }
     }
+    /*
+     * Envía una respuesta de error en formato JSON
+     */
     
     private void sendError(HttpServletResponse res, String message) throws IOException {
         res.setStatus(HttpServletResponse.SC_BAD_REQUEST);

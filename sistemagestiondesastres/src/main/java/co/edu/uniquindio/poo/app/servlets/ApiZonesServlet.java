@@ -109,6 +109,9 @@ public class ApiZonesServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(error));
         }
     }
+    /*
+     * Maneja la creación de una nueva zona afectada
+     */
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
