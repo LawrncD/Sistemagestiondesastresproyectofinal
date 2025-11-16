@@ -16,7 +16,9 @@ public abstract class Usuario {
         this.numero = numero;
         this.rol = rol;
     }
-
+/*
+ * Verifica si la contraseña proporcionada coincide con la del usuario
+ */
     public boolean verificarPassword(String password) {
         return Objects.equals(this.passwd, password);
     }
