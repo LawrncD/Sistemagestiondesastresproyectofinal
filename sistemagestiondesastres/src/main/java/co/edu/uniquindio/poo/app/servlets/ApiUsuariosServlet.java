@@ -50,7 +50,7 @@ public class ApiUsuariosServlet extends HttpServlet {
                         u.getNombre(),
                         email,
                         rol,
-                        "ACTIVO" // Por ahora todos activos
+                        "ACTIVO" 
                     );
                 })
                 .collect(Collectors.toList());
