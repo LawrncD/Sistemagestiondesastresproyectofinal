@@ -14,7 +14,6 @@ co\edu\uniquindio\poo\model\EquipoDeRescate.class
 co\edu\uniquindio\poo\app\ResultadoSimulacion.class
 co\edu\uniquindio\poo\app\servlets\ApiUsuariosServlet$UsuarioInfo.class
 co\edu\uniquindio\poo\ds\MapaRecursos.class
-co\edu\uniquindio\poo\App.class
 co\edu\uniquindio\poo\app\servlets\ApiResourceTransferServlet.class
 co\edu\uniquindio\poo\app\servlets\ApiEvacuacionesServlet.class
 co\edu\uniquindio\poo\ds\GrafoDirigido.class
