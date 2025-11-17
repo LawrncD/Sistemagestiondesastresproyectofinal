@@ -53,3 +53,17 @@ Pero en IntelliJ IDEA, cuando se crea una **Run Configuration tipo Maven**, el I
 ## Resultado
 
 Con esta configuración podrás iniciar tu servidor Java Maven desde IntelliJ con un solo clic, sin depender de archivos `.bat` ni de tener Maven configurado en el PATH del sistema.
+
+# Reporte de posibles bugs a la hora de ejecutar el proyecto con intellij idea
+
+## 1.Contador de recursos en la pestaña de inicio descontrolado
+Es posible que al ver el panel de inicio el cual muestra los datos generales sobre las zonas, rutas, recursos y evacuaciones, en la sección de recursos se evidencie un cambio aleatorio y bastante constante de su rspectivo contador, sin embargo esto no afecta el funcionamiento para todo lo relacionado con los recursos.
+
+## 2.Pestaña de notificación estática
+A la hora de iniciar por ejemplo una evacuación, dentro de la pestaña que se muestra al presionar sobre el icono de campana en el panel de inicio, se debe crear una notificación sobre la acción realizada, pero no sucede ningun cambio para este caso.
+
+## Aclaración
+El origen de estos bugs se desconoce, pero únicamente sucede si se ejecuta el proyecto dentro de intellij, para visual studio code no se presentan ninguno de los anteriores bugs. 
+Por lo mismo se llegó a la conclusión de que probablemente el motivo este dentro de la propia aplicación o dispositivo más no dentro del proyecto creado.
+
+La presencia de estos bugs no afecta en nada al funcionamiento del resto del sistema.
