@@ -63,7 +63,7 @@ Es posible que al ver el panel de inicio el cual muestra los datos generales sob
 A la hora de iniciar por ejemplo una evacuación, dentro de la pestaña que se muestra al presionar sobre el icono de campana en el panel de inicio, se debe crear una notificación sobre la acción realizada, pero no sucede ningun cambio para este caso.
 
 ## Aclaración
-El origen de estos bugs se desconoce, pero únicamente sucede si se ejecuta el proyecto dentro de intellij, para visual studio code no se presentan ninguno de los anteriores bugs. 
-Por lo mismo se llegó a la conclusión de que probablemente el motivo este dentro de la propia aplicación o dispositivo más no dentro del proyecto creado.
+El origen de estos bugs se desconoce, y se ha evidenciado que el que ocurran o no depende del navegador usado. La mejor opcion para evitar que esto ocurra es usando el navegador Chrome dentro de una pestaña de incognito; sin embargo, esto no garantiza que no sucedan ambos bugs, puede mantenerse el bug de la ventana notificación estática.
 
-La presencia de estos bugs no afecta en nada al funcionamiento del resto del sistema.
+La presencia de estos bugs no altera el funcionamiento del resto del sistema.
+
