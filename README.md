@@ -1,6 +1,6 @@
 # 🌍 Sistema de Gestión de Desastres Naturales
 
-Sistema integral de gestión de emergencias y desastres naturales desarrollado con Java, que incluye visualización en tiempo real con OpenStreetMap, gestión de recursos, evacuaciones y análisis de rutas óptimas.
+Sistema integral de gestión de emergencias y desastres naturales desarrollado con Java y JavaScript, que incluye visualización en tiempo real con OpenStreetMap, gestión de recursos, evacuaciones, análisis de rutas óptimas y otras funcionalidades necesarias para un correcto manejo de la Gestion de desastres.
 
 ## 📋 Descripción
 
@@ -9,9 +9,18 @@ Este proyecto implementa un sistema completo para la gestión y coordinación de
 - **Gestión de Zonas Afectadas**: Registro y monitoreo de áreas impactadas con niveles de riesgo
 - **Mapa Interactivo**: Visualización en tiempo real usando OpenStreetMap (Leaflet.js)
 - **Gestión de Recursos**: Control de inventario y distribución de recursos de emergencia
-- **Planificación de Evacuaciones**: Sistema de priorización basado en niveles de riesgo
+- **Planificación de Evacuaciones**: Sistema de priorización basado en niveles de riesgo mediante simulaciones inteligentes
 - **Cálculo de Rutas**: Algoritmos para encontrar las rutas más cortas y seguras
-- **Análisis Estadístico**: Dashboard con gráficas y reportes en tiempo real
+- **Análisis Estadístico**: Dashboard con gráficas en tiempo real
+- **Simulaciones**: Simulacion de desastres naturales y su impacto en el nivel de riesgo en las zonas vulnerables
+- **Gestión de equipos de rescate**: Asignacion inteligente de equipos de rescate a zonas de mayor riesgo
+- **Reportes**: Generacion de documentos con  reportes analiticos e información detallada
+- **Gestion de usuarios**: Administracion eficiente y organizada de Operadores de emergencia disponibles
+- **Ejecución de evacuaciones**: Ejecutar evacuaciones y actualizar el estado de las zonas evacuadas
+
+
+
+
 
 ## 🏗️ Arquitectura
 
@@ -25,9 +34,10 @@ El proyecto utiliza las siguientes estructuras de datos y patrones:
 
 ## 👥 Autores
 
--Stefania Herrera
--Santiago Aguirre
--Lawrence Daniel
+- **Santiago Aguirre**
+- **Lawrence Daniel**
+- **Stefania Herrera**
+
 - Proyecto académico EDT 2025
 
 ## 🛠️ Tecnologías y Herramientas
@@ -204,8 +214,9 @@ El sistema incluye un mapa interactivo que muestra:
   - 🔴 Rojo: Riesgo alto (≥ 75)
   
 - **Rutas de evacuación** dibujadas como líneas:
-  - Azul sólido: Rutas disponibles
+  - Verde sólido: Rutas disponibles
   - Gris punteado: Rutas no disponibles
+  - Azul claro: Rutas bloqueadas
 
 - **Popups informativos** con detalles de cada zona y ruta
 
@@ -270,7 +281,6 @@ mvn clean install
 
 - [ ] Persistencia en base de datos (PostgreSQL)
 - [ ] API REST completa con documentación Swagger
-- [ ] Sistema de notificaciones en tiempo real (WebSockets)
 - [ ] Aplicación móvil (React Native)
 - [ ] Machine Learning para predicción de riesgos
 - [ ] Integración con servicios meteorológicos
@@ -281,4 +291,4 @@ Proyecto académico - Universidad del Quindío © 2025
 
 ---
 
-**Desarrollado con ❤️ para ayudar en la gestión de emergencias**
+**Proyecto desarrollado con esfuerzo y berraquera para ayudar en la gestión de emergencias**
