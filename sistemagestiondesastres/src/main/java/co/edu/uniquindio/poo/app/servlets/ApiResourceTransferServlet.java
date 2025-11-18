@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/api/resources/transfer")
+@WebServlet("http://localhost:8080/api/resources")
 public class ApiResourceTransferServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final SistemaGestionDesastres sistema = SistemaGestionDesastres.getInstance();

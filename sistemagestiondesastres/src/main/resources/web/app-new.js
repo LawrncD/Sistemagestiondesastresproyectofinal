@@ -2517,7 +2517,7 @@ async function saveTransferResource(event) {
     console.log('   tipo normalizado:', tipoNormalizado);
     
     try {
-        const response = await fetch('/api/resources/transfer', {
+        const response = await fetch('http://localhost:8080/api/resources', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -2529,20 +2529,20 @@ async function saveTransferResource(event) {
                 cantidad: quantity
             })
         });
-        
+
         const data = await response.json();
         console.log('📥 Respuesta del servidor:', data);
-        
+
         if (!response.ok || !data.ok) {
             throw new Error(data.msg || 'Error al transferir recursos');
         }
-        
+
         // Recargar datos
         await loadResources();
         updateStats();
         updateStatTrends();
         if (resourcesChart) updateResourcesChart();
-        
+
         closeModal('transfer-resource-modal');
         showToast('success', 'Transferencia Exitosa', `${quantity} unidades de ${resourceType} transferidas de ${sourceLocation} a ${destination}`);
     } catch (error) {
