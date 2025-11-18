@@ -301,11 +301,14 @@ public class ApiRoutesServlet extends HttpServlet {
                 ((Number) body.get("tiempo")).doubleValue() : rutaExistente.getTiempo();
             int capacidad = body.containsKey("capacidad") ? 
                 ((Number) body.get("capacidad")).intValue() : rutaExistente.getCapacidad();
+            boolean disponible = body.containsKey("disponible") ?
+                    ((Boolean) body.get("disponible")).booleanValue() : rutaExistente.estaDisponible();
             
             // Remover la ruta vieja y agregar la nueva
             sistema.getGrafo().getAristas().get(origenId).remove(rutaExistente);
             Ruta nuevaRuta = new Ruta(rutaExistente.getOrigenId(), rutaExistente.getDestinoId(), 
                 distancia, tiempo, capacidad);
+            nuevaRuta.setDisponible(disponible);
             sistema.getGrafo().getAristas().get(origenId).add(nuevaRuta);
 
             JsonObject response = new JsonObject();

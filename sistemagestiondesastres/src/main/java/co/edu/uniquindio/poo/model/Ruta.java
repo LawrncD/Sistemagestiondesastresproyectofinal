@@ -38,4 +38,6 @@ public class Ruta {
     public int getCapacidad() {
     return capacidad;
 }
+
+    public void setDisponible(boolean disponible) { this.disponible = disponible;}
 }
